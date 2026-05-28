@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Dashboard — MBG Bondowoso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    /* Page-specific tweaks */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .grid-2-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Bar chart */
+    .chart-legend {
+      display: flex; gap: 14px; font-size: 11.5px; color: var(--text-secondary);
+    }
+    .chart-legend .it { display: inline-flex; align-items: center; gap: 6px; }
+    .chart-legend .sw { width: 10px; height: 10px; border-radius: 3px; }
+
+    .bars {
+      padding: 18px 22px 8px;
+      position: relative;
+    }
+    .bars-grid {
+      position: relative;
+      height: 260px;
+      display: grid;
+      grid-template-rows: repeat(5, 1fr);
+      border-bottom: 1px solid var(--border);
+    }
+    .bars-grid::before {
+      /* gridlines */
+      content: "";
+      position: absolute; inset: 0;
+      background-image: linear-gradient(to top, transparent calc(20% - 1px), var(--border) 20%, transparent calc(20% + 1px));
+      background-size: 100% 20%;
+      pointer-events: none;
+    }
+    .bars-y {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 38px;
+      display: flex; flex-direction: column-reverse; justify-content: space-between;
+      font-size: 10.5px; color: var(--text-muted);
+      padding-bottom: -8px;
+    }
+    .bars-y span { transform: translateY(50%); }
+    .bars-x {
+      position: relative;
+      height: 260px;
+      margin-left: 40px;
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      padding: 8px 0 0;
+    }
+    .bar-col {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .bar-stack {
+      width: 100%;
+      max-width: 32px;
+      display: flex; flex-direction: column-reverse;
+      gap: 2px;
+      border-radius: 4px 4px 0 0;
+      overflow: hidden;
+    }
+    .bar-seg {
+      width: 100%;
+      transition: filter .15s;
+    }
+    .bar-seg.aman { background: var(--aman); }
+    .bar-seg.perhatian { background: var(--perhatian); }
+    .bar-seg.kritis { background: var(--kritis); }
+    .bar-col:hover .bar-seg { filter: brightness(1.1); }
+    .bar-label {
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      margin-top: 6px;
+      white-space: nowrap;
+    }
+
+    /* Stock distribution donut */
+    .donut-wrap {
+      display: flex; align-items: center; gap: 24px;
+      padding: 8px 8px 4px;
+    }
+    .donut {
+      --aman: 65;
+      --perhatian: 22;
+      --kritis: 13;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--aman, #16A34A) 0 calc(var(--aman) * 1%),
+        var(--perhatian, #D97706) calc(var(--aman) * 1%) calc((var(--aman) + var(--perhatian)) * 1%),
+        var(--kritis, #DC2626) calc((var(--aman) + var(--perhatian)) * 1%) 100%
+      );
+      position: relative;
+      flex-shrink: 0;
+    }
+    .donut::after {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      background: var(--surface);
+      border-radius: 50%;
+    }
+    .donut-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 1;
+    }
+    .donut-center .pct { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+    .donut-center .lbl { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .donut-legend { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .donut-legend .row {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12.5px;
+    }
+    .donut-legend .row .lhs { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); }
+    .donut-legend .row .sw { width: 10px; height: 10px; border-radius: 3px; }
+    .donut-legend .row .v { font-weight: 700; color: var(--text); font-feature-settings: "tnum"; }
+
+    /* Activity feed */
+    .activity { padding: 4px 0; }
+    .activity li {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 12px;
+      padding: 10px 4px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .activity li:last-child { border: 0; }
+    .activity .dot-ic {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .activity .text { font-size: 12.5px; line-height: 1.45; }
+    .activity .text b { font-weight: 600; }
+    .activity .when { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    .activity ul { padding: 0; margin: 0; }
+
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 4px; }
+    .quick-actions a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: all .15s;
+    }
+    .quick-actions a:hover {
+      background: var(--primary-50);
+      border-color: var(--primary-200);
+    }
+    .quick-actions a .ic {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--primary-50);
+      color: var(--primary);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .quick-actions a .ttl { font-size: 12.5px; font-weight: 600; }
+    .quick-actions a .sub { font-size: 11px; color: var(--text-muted); }
+
+    /* Period switcher */
+    .seg {
+      display: inline-flex;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+    }
+    .seg button {
+      border: 0;
+      background: transparent;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-radius: 6px;
+    }
+    .seg button.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <main class="app">
+    <div class="main">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div>
+          <h1>Selamat pagi, Sri 👋</h1>
+          <p>Pantauan stok bahan baku MBG di 23 kecamatan Bondowoso · <span class="muted">Diperbarui 28 Mei 2026, 09:42 WIB</span></p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-outline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Sinkronkan Data
+          </button>
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Unduh Laporan
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI summary cards -->
+      <div class="kpis">
+        <div class="kpi aman">
+          <div class="kpi-h">
+            <span class="kpi-label">Total Stok Aman</span>
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value">18.420 <span style="font-size:14px; color: var(--text-muted); font-weight:500;">kg</span></div>
+          <div class="kpi-foot"><span class="up">▲ 4,2%</span> · vs. minggu lalu</div>
+        </div>
+
+        <div class="kpi kritis">
+          <div class="kpi-h">
+            <span class="kpi-label">Stok Kritis</span>
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value">12</div>
+          <div class="kpi-foot"><span class="down">▲ 3 item</span> · butuh tindakan segera</div>
+        </div>
+
+        <div class="kpi info">
+          <div class="kpi-h">
+            <span class="kpi-label">Kecamatan Terpantau</span>
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value">23<span style="font-size:14px; color: var(--text-muted); font-weight:500;"> / 23</span></div>
+          <div class="kpi-foot">Semua wilayah terkoneksi</div>
+        </div>
+
+        <div class="kpi perhatian">
+          <div class="kpi-h">
+            <span class="kpi-label">Total Jenis Bahan Baku</span>
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value">47<span style="font-size:14px; color: var(--text-muted); font-weight:500;"> jenis</span></div>
+          <div class="kpi-foot">4 kategori · 219 titik distribusi</div>
+        </div>
+      </div>
+
+      <!-- Bar chart + donut -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h">
+            <div>
+              <h3>Perbandingan Stok per Kecamatan</h3>
+              <div class="sub">Stok bahan baku (kg) — 23 kecamatan</div>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center;">
+              <div class="chart-legend">
+                <span class="it"><span class="sw" style="background: var(--aman);"></span> Aman</span>
+                <span class="it"><span class="sw" style="background: var(--perhatian);"></span> Perhatian</span>
+                <span class="it"><span class="sw" style="background: var(--kritis);"></span> Kritis</span>
+              </div>
+              <div class="seg">
+                <button>7 Hari</button>
+                <button class="active">30 Hari</button>
+                <button>90 Hari</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bars">
+            <div style="position:relative;">
+              <div class="bars-y">
+                <span>0</span><span>500</span><span>1000</span><span>1500</span><span>2000</span>
+              </div>
+              <div class="bars-x" id="bars"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">
+            <div>
+              <h3>Distribusi Status Stok</h3>
+              <div class="sub">Seluruh wilayah Bondowoso</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="donut-wrap">
+              <div class="donut" style="--aman: 64; --perhatian: 23; --kritis: 13;">
+                <div class="donut-center">
+                  <div class="pct">64%</div>
+                  <div class="lbl">Aman</div>
+                </div>
+              </div>
+              <div class="donut-legend">
+                <div class="row"><span class="lhs"><span class="sw" style="background: var(--aman);"></span> Aman</span> <span class="v">15 kec · 64%</span></div>
+                <div class="row"><span class="lhs"><span class="sw" style="background: var(--perhatian);"></span> Perlu Perhatian</span> <span class="v">5 kec · 22%</span></div>
+                <div class="row"><span class="lhs"><span class="sw" style="background: var(--kritis);"></span> Kritis</span> <span class="v">3 kec · 14%</span></div>
+                <hr class="divider" />
+                <div class="row"><span class="lhs muted">Penerima manfaat aktif</span> <span class="v">48.219</span></div>
+                <div class="row"><span class="lhs muted">Bahan dikirim minggu ini</span> <span class="v">12,4 ton</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical stock table + activity feed -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h">
+            <div>
+              <h3>Daftar Stok Kritis Terbaru</h3>
+              <div class="sub">12 item perlu tindakan dalam 48 jam ke depan</div>
+            </div>
+            <a href="bahan-baku.html" class="btn btn-ghost btn-sm">
+              Lihat semua
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+          <table class="data">
+            <thead>
+              <tr>
+                <th>Bahan Baku</th>
+                <th>Kecamatan</th>
+                <th>Jumlah</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="criticalRows"></tbody>
+          </table>
+        </div>
+
+        <div class="col" style="gap:16px;">
+          <div class="card">
+            <div class="card-h">
+              <div>
+                <h3>Aktivitas Terbaru</h3>
+                <div class="sub">Pembaruan stok &amp; aksi PJ wilayah</div>
+              </div>
+            </div>
+            <div class="card-body" style="padding-top: 6px; padding-bottom: 6px;">
+              <ul class="activity">
+                <li>
+                  <div class="dot-ic" style="background: var(--kritis-bg); color: var(--kritis);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  </div>
+                  <div class="text"><b>Telur ayam</b> di Kec. Wringin masuk status kritis (12 kg)</div>
+                  <div class="when">5 mnt lalu</div>
+                </li>
+                <li>
+                  <div class="dot-ic" style="background: var(--aman-bg); color: var(--aman);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="text"><b>Pak Hasan</b> memperbarui stok beras di Kec. Tenggarang (+180 kg)</div>
+                  <div class="when">22 mnt</div>
+                </li>
+                <li>
+                  <div class="dot-ic" style="background: var(--primary-50); color: var(--primary);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                  </div>
+                  <div class="text">Pengiriman tahu &amp; tempe ke Kec. Ijen berhasil diterima</div>
+                  <div class="when">1 jam</div>
+                </li>
+                <li>
+                  <div class="dot-ic" style="background: var(--perhatian-bg); color: var(--perhatian);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  </div>
+                  <div class="text">Stok wortel di Kec. Sumber Wringin akan habis dalam 2 hari</div>
+                  <div class="when">2 jam</div>
+                </li>
+                <li>
+                  <div class="dot-ic" style="background: var(--primary-50); color: var(--primary);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  </div>
+                  <div class="text">PJ baru ditugaskan untuk Kec. Botolinggo: <b>Bu Maryam</b></div>
+                  <div class="when">3 jam</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h">
+              <div><h3>Aksi Cepat</h3></div>
+            </div>
+            <div class="card-body" style="padding: 12px;">
+              <div class="quick-actions">
+                <a href="bahan-baku.html">
+                  <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+                  <div><div class="ttl">Tambah Stok</div><div class="sub">Catat masuk baru</div></div>
+                </a>
+                <a href="peta-stok.html">
+                  <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg></span>
+                  <div><div class="ttl">Lihat Peta</div><div class="sub">Pemetaan 23 kec</div></div>
+                </a>
+                <a href="laporan.html">
+                  <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+                  <div><div class="ttl">Buat Laporan</div><div class="sub">Ekspor PDF / Excel</div></div>
+                </a>
+                <a href="#">
+                  <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+                  <div><div class="ttl">Kirim Peringatan</div><div class="sub">Notif ke PJ wilayah</div></div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="assets/shell.js"></script>
+  <script>
+    renderShell({ active: 'dashboard', page: 'Dashboard', crumb: 'Beranda · Pemetaan MBG' });
+
+    // ---- Bar chart data ----
+    // Each kecamatan has aman / perhatian / kritis (kg). Max scale = 2000.
+    const KEC = [
+      { n: "Bondowoso",     a: 1620, p: 180, k: 0   },
+      { n: "Tenggarang",    a: 1480, p: 220, k: 0   },
+      { n: "Tegalampel",    a: 1320, p: 160, k: 40  },
+      { n: "Wonosari",      a: 1180, p: 140, k: 0   },
+      { n: "Curahdami",     a: 1240, p: 90,  k: 0   },
+      { n: "Maesan",        a: 980,  p: 280, k: 60  },
+      { n: "Grujugan",      a: 1140, p: 120, k: 0   },
+      { n: "Pujer",         a: 1320, p: 60,  k: 0   },
+      { n: "Tamanan",       a: 1080, p: 220, k: 0   },
+      { n: "Jambesari",     a: 1020, p: 120, k: 30  },
+      { n: "Tapen",         a: 940,  p: 180, k: 0   },
+      { n: "Wringin",       a: 720,  p: 240, k: 220 },
+      { n: "Pakem",         a: 880,  p: 320, k: 80  },
+      { n: "Binakal",       a: 1040, p: 140, k: 0   },
+      { n: "Sukosari",      a: 860,  p: 280, k: 0   },
+      { n: "Tlogosari",     a: 780,  p: 320, k: 140 },
+      { n: "Sumber Wringin",a: 640,  p: 260, k: 280 },
+      { n: "Klabang",       a: 920,  p: 180, k: 0   },
+      { n: "Botolinggo",    a: 1080, p: 120, k: 0   },
+      { n: "Prajekan",      a: 980,  p: 240, k: 0   },
+      { n: "Cermee",        a: 1240, p: 80,  k: 0   },
+      { n: "Taman Krocok",  a: 1100, p: 160, k: 0   },
+      { n: "Ijen",          a: 540,  p: 320, k: 240 },
+    ];
+    const MAX = 2000;
+    const bars = document.getElementById('bars');
+    bars.innerHTML = KEC.map(d => {
+      const total = d.a + d.p + d.k;
+      const totalPct = (total / MAX) * 100;
+      const aPct = (d.a / total) * 100;
+      const pPct = (d.p / total) * 100;
+      const kPct = (d.k / total) * 100;
+      return `
+        <div class="bar-col" title="${d.n} — ${total} kg">
+          <div class="bar-stack" style="height: ${totalPct}%;">
+            <div class="bar-seg kritis" style="height: ${kPct}%;"></div>
+            <div class="bar-seg perhatian" style="height: ${pPct}%;"></div>
+            <div class="bar-seg aman" style="height: ${aPct}%;"></div>
+          </div>
+          <div class="bar-label">${d.n}</div>
+        </div>
+      `;
+    }).join('');
+
+    // ---- Critical stock rows ----
+    const critical = [
+      { name: "Telur Ayam", cat: "Protein", kec: "Wringin", qty: "12 kg", min: "60 kg", status: "kritis" },
+      { name: "Wortel", cat: "Sayuran", kec: "Sumber Wringin", qty: "8 kg", min: "40 kg", status: "kritis" },
+      { name: "Tempe", cat: "Protein", kec: "Ijen", qty: "15 kg", min: "50 kg", status: "kritis" },
+      { name: "Bawang Merah", cat: "Bumbu Dasar", kec: "Tlogosari", qty: "4 kg", min: "20 kg", status: "kritis" },
+      { name: "Daging Ayam", cat: "Protein", kec: "Pakem", qty: "28 kg", min: "60 kg", status: "perhatian" },
+      { name: "Beras Premium", cat: "Karbohidrat", kec: "Maesan", qty: "120 kg", min: "300 kg", status: "perhatian" },
+      { name: "Minyak Goreng", cat: "Bumbu Dasar", kec: "Wringin", qty: "18 L", min: "40 L", status: "perhatian" },
+    ];
+    document.getElementById('criticalRows').innerHTML = critical.map(c => `
+      <tr>
+        <td>
+          <div class="strong">${c.name}</div>
+          <div class="muted">${c.cat}</div>
+        </td>
+        <td>${c.kec}</td>
+        <td>
+          <div class="strong">${c.qty}</div>
+          <div class="muted">min. ${c.min}</div>
+        </td>
+        <td><span class="badge ${c.status}">${c.status === 'kritis' ? 'Kritis' : 'Perlu Perhatian'}</span></td>
+        <td>
+          <button class="btn btn-ghost btn-sm">Tindak</button>
+        </td>
+      </tr>
+    `).join('');
+  </script>
+</body>
+</html>

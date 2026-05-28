@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Peta Stok — MBG Bondowoso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    .peta-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 16px;
+      align-items: start;
+    }
+    .map-card { padding: 0; overflow: hidden; }
+    .map-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .map-toolbar .left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .map-toolbar .right { display: flex; align-items: center; gap: 8px; }
+
+    .legend {
+      display: flex; gap: 14px; align-items: center;
+      padding: 12px 18px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .legend .item { display: inline-flex; align-items: center; gap: 8px; }
+    .legend .sw {
+      width: 14px; height: 14px; border-radius: 4px;
+      border: 1px solid rgba(0,0,0,.05);
+    }
+    .legend .meta {
+      margin-left: auto;
+      display: flex; gap: 14px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .map-stage {
+      position: relative;
+      background:
+        radial-gradient(ellipse at 30% 25%, rgba(46,125,50,.04), transparent 60%),
+        linear-gradient(180deg, #FAFCFA, #F4F6F4);
+      min-height: 540px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .map-svg {
+      width: 100%;
+      max-width: 760px;
+      height: auto;
+      display: block;
+    }
+    .hex {
+      cursor: pointer;
+      transition: filter .15s, transform .15s;
+      transform-origin: center;
+    }
+    .hex polygon {
+      stroke: #fff;
+      stroke-width: 2;
+      transition: stroke .15s, stroke-width .15s;
+    }
+    .hex:hover { filter: brightness(1.06); }
+    .hex:hover polygon {
+      stroke: var(--text);
+      stroke-width: 2.5;
+    }
+    .hex.selected polygon {
+      stroke: var(--text);
+      stroke-width: 3;
+    }
+    .hex text {
+      pointer-events: none;
+      font-size: 9.5px;
+      font-weight: 600;
+      fill: #fff;
+      text-anchor: middle;
+      paint-order: stroke;
+      stroke: rgba(0,0,0,.15);
+      stroke-width: 0.4;
+    }
+
+    .map-compass {
+      position: absolute;
+      top: 18px; left: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px;
+      box-shadow: var(--shadow-md);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      width: 56px; height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .map-compass .arrow { color: var(--primary); }
+    .map-compass .n { font-size: 11px; color: var(--primary-dark); font-weight: 800; }
+
+    .map-zoom {
+      position: absolute;
+      top: 18px; right: 18px;
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+    .map-zoom button {
+      width: 38px; height: 38px;
+      border: 0;
+      background: var(--surface);
+      color: var(--text-secondary);
+    }
+    .map-zoom button:hover { background: var(--surface-2); color: var(--primary); }
+    .map-zoom button + button { border-top: 1px solid var(--border); }
+
+    /* Side panel */
+    .detail {
+      position: sticky;
+      top: calc(var(--topbar-h) + 24px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .detail-card { padding: 0; overflow: hidden; }
+    .detail-hero {
+      padding: 18px 20px 16px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      position: relative;
+    }
+    .detail-hero .eyebrow {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      opacity: .8;
+      font-weight: 600;
+    }
+    .detail-hero h2 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 4px 0 10px;
+    }
+    .detail-hero .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .detail-hero .status-pill::before {
+      content: ""; width: 8px; height: 8px; border-radius: 50%;
+      background: #fff;
+    }
+
+    .detail-pj {
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      gap: 12px;
+      padding: 14px 20px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-pj .av {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--primary-50);
+      color: var(--primary-dark);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700;
+    }
+    .detail-pj .lbl { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .detail-pj .nm { font-weight: 700; font-size: 14px; }
+    .detail-pj .ph { font-size: 11.5px; color: var(--text-secondary); }
+    .detail-pj button { border: 1px solid var(--border); background: var(--surface); padding: 7px 10px; border-radius: 8px; color: var(--primary); }
+
+    .detail-mini {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-mini .it { text-align: center; }
+    .detail-mini .it + .it { border-left: 1px solid var(--border); }
+    .detail-mini .v { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+    .detail-mini .l { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .detail-list-h {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px 8px;
+    }
+    .detail-list-h h4 { margin: 0; font-size: 13px; font-weight: 700; }
+    .detail-list-h .ct { font-size: 11.5px; color: var(--text-muted); }
+
+    .detail-list {
+      list-style: none; padding: 0 12px 12px; margin: 0;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .detail-list li {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      padding: 10px 8px;
+      border-radius: 8px;
+    }
+    .detail-list li:hover { background: var(--surface-2); }
+    .detail-list .nm { font-weight: 600; font-size: 13px; }
+    .detail-list .ct-row { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+    .detail-list .qty { text-align: right; }
+    .detail-list .qty .n { font-weight: 700; font-size: 13.5px; font-feature-settings: "tnum"; }
+    .detail-list .qty .pct { font-size: 11px; color: var(--text-muted); }
+
+    .detail-foot {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .detail-foot .dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--aman); margin-right: 6px;
+    }
+
+    /* Mini stat strip on top */
+    .map-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .map-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .map-stat .bar { width: 4px; align-self: stretch; border-radius: 2px; }
+    .map-stat .bar.aman { background: var(--aman); }
+    .map-stat .bar.perhatian { background: var(--perhatian); }
+    .map-stat .bar.kritis { background: var(--kritis); }
+    .map-stat .bar.total { background: var(--primary); }
+    .map-stat .v { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+    .map-stat .l { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+  <main class="app">
+    <div class="main">
+
+      <div class="page-header">
+        <div>
+          <h1>Peta Stok Bahan Baku</h1>
+          <p>Pemetaan stok 23 kecamatan di Kabupaten Bondowoso · Klik wilayah untuk melihat detail</p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-outline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            Ekspor PDF
+          </button>
+          <button class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            Mode Lapisan
+          </button>
+        </div>
+      </div>
+
+      <div class="map-stats">
+        <div class="map-stat"><div class="bar total"></div><div><div class="v">23</div><div class="l">Total Kecamatan</div></div></div>
+        <div class="map-stat"><div class="bar aman"></div><div><div class="v">15</div><div class="l">Status Aman</div></div></div>
+        <div class="map-stat"><div class="bar perhatian"></div><div><div class="v">5</div><div class="l">Perlu Perhatian</div></div></div>
+        <div class="map-stat"><div class="bar kritis"></div><div><div class="v">3</div><div class="l">Status Kritis</div></div></div>
+      </div>
+
+      <div class="peta-layout">
+
+        <!-- ===== Map card ===== -->
+        <div class="card map-card">
+          <div class="map-toolbar">
+            <div class="left">
+              <span style="font-size: 12px; color: var(--text-muted); font-weight: 600; margin-right: 4px;">Filter Kategori:</span>
+              <button class="chip active" data-filter="all">Semua</button>
+              <button class="chip" data-filter="Protein">Protein</button>
+              <button class="chip" data-filter="Karbohidrat">Karbohidrat</button>
+              <button class="chip" data-filter="Sayuran">Sayuran</button>
+              <button class="chip" data-filter="Bumbu">Bumbu Dasar</button>
+            </div>
+            <div class="right">
+              <button class="btn btn-ghost btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <div class="legend">
+            <span class="item"><span class="sw" style="background: var(--aman);"></span> Aman (stok &gt; 80% target)</span>
+            <span class="item"><span class="sw" style="background: var(--perhatian);"></span> Perlu Perhatian (40–80%)</span>
+            <span class="item"><span class="sw" style="background: var(--kritis);"></span> Kritis (&lt; 40%)</span>
+            <span class="meta">
+              <span>Pembaruan real-time</span>
+              <span>·</span>
+              <span>09:42 WIB</span>
+            </span>
+          </div>
+
+          <div class="map-stage">
+            <div class="map-compass">
+              <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L16 14 L12 11 L8 14 Z"/></svg>
+              <span class="n">U</span>
+            </div>
+            <div class="map-zoom">
+              <button title="Perbesar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              <button title="Perkecil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+            <svg class="map-svg" viewBox="0 0 720 600" id="mapSvg" aria-label="Peta stok 23 kecamatan Bondowoso">
+              <!-- background subtle outline -->
+              <defs>
+                <filter id="hexshadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.08"/>
+                </filter>
+              </defs>
+              <g id="hexes" filter="url(#hexshadow)"></g>
+              <!-- City marker for Bondowoso center -->
+              <g id="cityMarker" pointer-events="none"></g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- ===== Side detail panel ===== -->
+        <div class="detail" id="detail"></div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/shell.js"></script>
+  <script>
+    renderShell({ active: 'peta', page: 'Peta Stok', crumb: 'Pemetaan · Kabupaten Bondowoso' });
+
+    // ===== Data: 23 kecamatans =====
+    // grid position (col, row) approximates geography. Top = North.
+    // pointy-top hex layout: cx = col*86.6 + (row%2?43.3:0) + offsetX; cy = row*75 + offsetY
+    const KECAMATAN = [
+      // Row 0 (north)
+      { id: 'klabang',    name: 'Klabang',         col: 2, row: 0, status: 'aman', pj: 'Bambang Sutrisno', tel: '081234-001-001' },
+      { id: 'botolinggo', name: 'Botolinggo',      col: 3, row: 0, status: 'aman', pj: 'Maryam Hidayat',    tel: '081234-001-002' },
+      { id: 'prajekan',   name: 'Prajekan',        col: 4, row: 0, status: 'aman', pj: 'Joko Widodo',       tel: '081234-001-003' },
+      { id: 'cermee',     name: 'Cermee',          col: 5, row: 0, status: 'aman', pj: 'Surya Atmaja',      tel: '081234-001-004' },
+
+      // Row 1
+      { id: 'tamankrocok',name: 'Taman Krocok',    col: 2, row: 1, status: 'aman', pj: 'Eko Prabowo',       tel: '081234-001-005' },
+      { id: 'tapen',      name: 'Tapen',           col: 3, row: 1, status: 'aman', pj: 'Susi Astuti',       tel: '081234-001-006' },
+      { id: 'sukosari',   name: 'Sukosari',        col: 4, row: 1, status: 'perhatian', pj: 'Hartono Putra',tel: '081234-001-007' },
+
+      // Row 2
+      { id: 'wringin',    name: 'Wringin',         col: 1, row: 2, status: 'kritis', pj: 'Sutrisno Aji',    tel: '081234-001-008' },
+      { id: 'tegalampel', name: 'Tegalampel',      col: 2, row: 2, status: 'aman', pj: 'Linda Wijaya',      tel: '081234-001-009' },
+      { id: 'bondowoso',  name: 'Bondowoso',       col: 3, row: 2, status: 'aman', pj: 'Hasan Basri',       tel: '081234-001-010' },
+      { id: 'wonosari',   name: 'Wonosari',        col: 4, row: 2, status: 'aman', pj: 'Rina Susanti',      tel: '081234-001-011' },
+      { id: 'sumberwringin', name: 'Sumber Wringin', col: 5, row: 2, status: 'kritis', pj: 'Agus Salim', tel: '081234-001-012' },
+
+      // Row 3
+      { id: 'binakal',    name: 'Binakal',         col: 1, row: 3, status: 'aman', pj: 'Indra Kusuma',      tel: '081234-001-013' },
+      { id: 'curahdami',  name: 'Curahdami',       col: 2, row: 3, status: 'aman', pj: 'Dewi Lestari',      tel: '081234-001-014' },
+      { id: 'tenggarang', name: 'Tenggarang',      col: 3, row: 3, status: 'aman', pj: 'Hasan Wijaya',      tel: '081234-001-015' },
+      { id: 'tlogosari',  name: 'Tlogosari',       col: 4, row: 3, status: 'perhatian', pj: 'Bambang Riyadi', tel: '081234-001-016' },
+      { id: 'ijen',       name: 'Ijen',            col: 5, row: 3, status: 'kritis', pj: 'Anton Hermawan', tel: '081234-001-017' },
+
+      // Row 4
+      { id: 'pakem',      name: 'Pakem',           col: 1, row: 4, status: 'perhatian', pj: 'Yusuf Mansyur', tel: '081234-001-018' },
+      { id: 'grujugan',   name: 'Grujugan',        col: 2, row: 4, status: 'aman', pj: 'Sri Mulyani',       tel: '081234-001-019' },
+      { id: 'pujer',      name: 'Pujer',           col: 3, row: 4, status: 'aman', pj: 'Wahyu Pratama',     tel: '081234-001-020' },
+      { id: 'jambesari',  name: 'Jambesari',       col: 4, row: 4, status: 'perhatian', pj: 'Nurul Hidayah', tel: '081234-001-021' },
+
+      // Row 5
+      { id: 'maesan',     name: 'Maesan',          col: 2, row: 5, status: 'perhatian', pj: 'Sigit Pratomo', tel: '081234-001-022' },
+      { id: 'tamanan',    name: 'Tamanan',         col: 3, row: 5, status: 'aman', pj: 'Lestari Putri',     tel: '081234-001-023' },
+    ];
+
+    // Stock detail per kecamatan
+    const STOCK_DATA = {
+      bondowoso: [
+        { name: 'Beras Premium', cat: 'Karbohidrat', qty: 420, unit: 'kg', min: 300, pct: 140 },
+        { name: 'Daging Ayam',   cat: 'Protein',     qty: 85,  unit: 'kg', min: 60, pct: 142 },
+        { name: 'Telur Ayam',    cat: 'Protein',     qty: 240, unit: 'kg', min: 120, pct: 200 },
+        { name: 'Wortel',        cat: 'Sayuran',    qty: 78,  unit: 'kg', min: 50, pct: 156 },
+        { name: 'Bawang Merah',  cat: 'Bumbu',      qty: 38,  unit: 'kg', min: 20, pct: 190 },
+        { name: 'Minyak Goreng', cat: 'Bumbu',      qty: 56,  unit: 'L',  min: 30, pct: 187 },
+      ],
+      wringin: [
+        { name: 'Telur Ayam',    cat: 'Protein',  qty: 12,  unit: 'kg', min: 60, pct: 20, critical: true },
+        { name: 'Minyak Goreng', cat: 'Bumbu',   qty: 18,  unit: 'L',  min: 40, pct: 45 },
+        { name: 'Beras Premium', cat: 'Karbohidrat', qty: 240, unit: 'kg', min: 250, pct: 96 },
+        { name: 'Tahu',          cat: 'Protein', qty: 32,  unit: 'kg', min: 30, pct: 107 },
+        { name: 'Sawi Hijau',    cat: 'Sayuran', qty: 28,  unit: 'kg', min: 25, pct: 112 },
+      ],
+      ijen: [
+        { name: 'Tempe',         cat: 'Protein',  qty: 15, unit: 'kg', min: 50, pct: 30, critical: true },
+        { name: 'Daging Ayam',   cat: 'Protein',  qty: 22, unit: 'kg', min: 55, pct: 40, critical: true },
+        { name: 'Beras Premium', cat: 'Karbohidrat', qty: 180, unit: 'kg', min: 200, pct: 90 },
+        { name: 'Wortel',        cat: 'Sayuran',  qty: 32, unit: 'kg', min: 40, pct: 80 },
+        { name: 'Bawang Putih',  cat: 'Bumbu',    qty: 14, unit: 'kg', min: 15, pct: 93 },
+      ],
+      sumberwringin: [
+        { name: 'Wortel',        cat: 'Sayuran',  qty: 8,  unit: 'kg', min: 40, pct: 20, critical: true },
+        { name: 'Kentang',       cat: 'Sayuran',  qty: 18, unit: 'kg', min: 45, pct: 40, critical: true },
+        { name: 'Telur Ayam',    cat: 'Protein',  qty: 42, unit: 'kg', min: 50, pct: 84 },
+        { name: 'Beras Premium', cat: 'Karbohidrat', qty: 220, unit: 'kg', min: 220, pct: 100 },
+      ],
+    };
+    // Default stock for kecamatans not detailed above
+    const DEFAULT_STOCK = (status) => {
+      if (status === 'aman') return [
+        { name: 'Beras Premium', cat: 'Karbohidrat', qty: 280, unit: 'kg', min: 200, pct: 140 },
+        { name: 'Telur Ayam',    cat: 'Protein',  qty: 75, unit: 'kg', min: 50, pct: 150 },
+        { name: 'Daging Ayam',   cat: 'Protein',  qty: 48, unit: 'kg', min: 30, pct: 160 },
+        { name: 'Wortel',        cat: 'Sayuran',  qty: 52, unit: 'kg', min: 30, pct: 173 },
+        { name: 'Bawang Merah',  cat: 'Bumbu',    qty: 24, unit: 'kg', min: 15, pct: 160 },
+      ];
+      if (status === 'perhatian') return [
+        { name: 'Beras Premium', cat: 'Karbohidrat', qty: 180, unit: 'kg', min: 200, pct: 90 },
+        { name: 'Daging Ayam',   cat: 'Protein',  qty: 28, unit: 'kg', min: 45, pct: 62 },
+        { name: 'Wortel',        cat: 'Sayuran',  qty: 22, unit: 'kg', min: 35, pct: 63 },
+        { name: 'Bawang Merah',  cat: 'Bumbu',    qty: 12, unit: 'kg', min: 20, pct: 60 },
+      ];
+      return [];
+    };
+
+    // ===== Render hex map =====
+    const SIZE = 44;            // hex "radius" (center to vertex)
+    const H_SP = SIZE * Math.sqrt(3);  // 76.2
+    const V_SP = SIZE * 1.5;           // 66
+    const OFF_X = 80;
+    const OFF_Y = 70;
+
+    const hexPoints = (cx, cy, r) => {
+      const pts = [];
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI / 180 * (60 * i - 90); // pointy-top
+        pts.push(`${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`);
+      }
+      return pts.join(' ');
+    };
+
+    const COLORS = {
+      aman: '#22C55E',
+      perhatian: '#F59E0B',
+      kritis: '#EF4444',
+    };
+
+    const hexesEl = document.getElementById('hexes');
+    KECAMATAN.forEach(k => {
+      const cx = k.col * H_SP + (k.row % 2 ? H_SP / 2 : 0) + OFF_X;
+      const cy = k.row * V_SP + OFF_Y;
+      const fill = COLORS[k.status];
+      const labelLines = k.name.split(' ');
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'hex');
+      g.setAttribute('data-id', k.id);
+      g.innerHTML = `
+        <polygon points="${hexPoints(cx, cy, SIZE)}" fill="${fill}"/>
+        ${labelLines.length === 1
+          ? `<text x="${cx}" y="${cy + 3}">${k.name}</text>`
+          : `<text x="${cx}" y="${cy - 2}">${labelLines[0]}</text>
+             <text x="${cx}" y="${cy + 10}">${labelLines.slice(1).join(' ')}</text>`}
+      `;
+      g.addEventListener('click', () => select(k.id));
+      hexesEl.appendChild(g);
+    });
+
+    // City marker (capital symbol on Bondowoso center)
+    const cap = KECAMATAN.find(k => k.id === 'bondowoso');
+    const capX = cap.col * H_SP + (cap.row % 2 ? H_SP / 2 : 0) + OFF_X;
+    const capY = cap.row * V_SP + OFF_Y;
+    const cm = document.getElementById('cityMarker');
+    cm.innerHTML = `
+      <g transform="translate(${capX + SIZE - 4}, ${capY - SIZE + 8})">
+        <circle r="9" fill="#fff" stroke="#1B5E20" stroke-width="1.5"/>
+        <path d="M0 -4 L0 4 M-4 0 L4 0" stroke="#1B5E20" stroke-width="1.5" stroke-linecap="round"/>
+      </g>
+    `;
+
+    // ===== Side panel render =====
+    let selectedId = 'wringin'; // default — critical to highlight feature
+    function select(id) {
+      selectedId = id;
+      document.querySelectorAll('.hex').forEach(h => h.classList.toggle('selected', h.dataset.id === id));
+      renderDetail();
+    }
+
+    function renderDetail() {
+      const k = KECAMATAN.find(x => x.id === selectedId);
+      const stock = STOCK_DATA[k.id] || DEFAULT_STOCK(k.status);
+      const totalQty = stock.reduce((s, x) => s + x.qty, 0);
+      const critCount = stock.filter(x => x.pct < 40).length;
+      const initials = k.pj.split(' ').map(s => s[0]).slice(0, 2).join('');
+      const statusLabel = { aman: 'Stok Aman', perhatian: 'Perlu Perhatian', kritis: 'Status Kritis' }[k.status];
+      const heroBg = {
+        aman: 'linear-gradient(135deg, #1B5E20, #2E7D32)',
+        perhatian: 'linear-gradient(135deg, #B45309, #D97706)',
+        kritis: 'linear-gradient(135deg, #991B1B, #DC2626)',
+      }[k.status];
+
+      const detail = document.getElementById('detail');
+      detail.innerHTML = `
+        <div class="card detail-card">
+          <div class="detail-hero" style="background: ${heroBg};">
+            <div class="eyebrow">Kecamatan</div>
+            <h2>${k.name}</h2>
+            <span class="status-pill">${statusLabel}</span>
+          </div>
+
+          <div class="detail-pj">
+            <div class="av">${initials}</div>
+            <div>
+              <div class="lbl">Penanggung Jawab</div>
+              <div class="nm">${k.pj}</div>
+              <div class="ph">${k.tel}</div>
+            </div>
+            <button title="Hubungi PJ">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </button>
+          </div>
+
+          <div class="detail-mini">
+            <div class="it"><div class="v">${stock.length}</div><div class="l">Jenis Bahan</div></div>
+            <div class="it"><div class="v">${totalQty}<span style="font-size:11px; color:var(--text-muted); font-weight:500;"> kg</span></div><div class="l">Total Stok</div></div>
+            <div class="it"><div class="v" style="color: ${critCount ? 'var(--kritis)' : 'var(--aman)'};">${critCount}</div><div class="l">Item Kritis</div></div>
+          </div>
+
+          <div class="detail-list-h">
+            <h4>Daftar Bahan Baku</h4>
+            <span class="ct">${stock.length} item</span>
+          </div>
+          <ul class="detail-list">
+            ${stock.map(s => {
+              const sStatus = s.pct < 40 ? 'kritis' : s.pct < 80 ? 'perhatian' : 'aman';
+              return `
+                <li>
+                  <div>
+                    <div class="nm">${s.name}</div>
+                    <div class="ct-row">${s.cat} · min. ${s.min} ${s.unit}</div>
+                  </div>
+                  <div class="qty">
+                    <div class="n" style="color: var(--${sStatus === 'aman' ? 'aman' : sStatus === 'perhatian' ? 'perhatian' : 'kritis'});">${s.qty} ${s.unit}</div>
+                    <div class="pct">${s.pct}% target</div>
+                  </div>
+                </li>
+              `;
+            }).join('')}
+          </ul>
+
+          <div class="detail-foot">
+            <span><span class="dot" style="background: ${critCount ? 'var(--kritis)' : 'var(--aman)'};"></span>Diperbarui 12 menit lalu</span>
+            <a href="bahan-baku.html" style="color: var(--primary-dark); font-weight: 600;">Buka data lengkap →</a>
+          </div>
+        </div>
+      `;
+    }
+
+    select('wringin'); // initial selection — show the critical case
+
+    // Filter chips
+    document.querySelectorAll('.chip[data-filter]').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.chip[data-filter]').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
