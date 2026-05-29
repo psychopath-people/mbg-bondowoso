@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Bantuan — MBG Bondowoso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    /* Search hero */
+    .help-hero {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      border-radius: var(--radius-lg);
+      padding: 36px 40px;
+      color: #fff;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .help-hero::after {
+      content: "";
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 20px 20px;
+      mask-image: linear-gradient(180deg, transparent, #000 40%, #000 70%, transparent);
+    }
+    .help-hero > * { position: relative; z-index: 1; }
+    .help-hero h2 {
+      font-size: 26px; font-weight: 800;
+      letter-spacing: -0.02em; margin: 0 0 8px;
+    }
+    .help-hero p { opacity: .85; font-size: 14px; margin: 0 0 22px; }
+    .help-search {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 10px;
+      padding: 10px 16px;
+      max-width: 560px;
+    }
+    .help-search svg { color: rgba(255,255,255,.7); flex-shrink: 0; }
+    .help-search input {
+      border: 0; background: transparent;
+      font-size: 14px; font-family: inherit;
+      color: #fff; width: 100%; outline: 0;
+    }
+    .help-search input::placeholder { color: rgba(255,255,255,.55); }
+
+    /* Quick links */
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .ql {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 18px;
+      display: flex; align-items: flex-start; gap: 14px;
+      cursor: pointer;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .ql:hover { box-shadow: var(--shadow-md); border-color: var(--primary-200); transform: translateY(-1px); }
+    .ql .ic {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ql .ttl { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+    .ql .sub { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+
+    /* Main layout */
+    .help-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* FAQ accordion */
+    .faq-section { margin-bottom: 20px; }
+    .faq-cat {
+      font-size: 11px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 12px; padding: 0 20px;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+    .faq-item:last-child { border: 0; }
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 600;
+      transition: background .1s;
+      gap: 12px;
+    }
+    .faq-q:hover { background: var(--surface-2); }
+    .faq-q .arr {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: var(--text-muted);
+      transition: transform .2s, background .15s;
+    }
+    .faq-item.open .faq-q .arr {
+      transform: rotate(180deg);
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .faq-item.open .faq-q { color: var(--primary-dark); }
+    .faq-a {
+      display: none;
+      padding: 0 20px 18px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+    .faq-item.open .faq-a { display: block; }
+    .faq-a ul { margin: 8px 0; padding-left: 18px; }
+    .faq-a li { margin-bottom: 4px; }
+    .faq-a code {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 12px;
+    }
+
+    /* Guide steps */
+    .guide-section { margin-bottom: 20px; }
+    .guide-tabs {
+      display: flex; gap: 4px;
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+    }
+    .guide-tab {
+      border: 0; background: transparent;
+      padding: 12px 14px 10px;
+      font-size: 13px; font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .guide-tab:hover { color: var(--text); }
+    .guide-tab.active { color: var(--primary-dark); border-bottom-color: var(--primary); }
+    .guide-content { padding: 20px; display: none; }
+    .guide-content.active { display: block; }
+
+    .step-list { list-style: none; padding: 0; margin: 0; }
+    .step-item {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .step-item:last-child { border: 0; }
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800; font-size: 12.5px;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step-ttl { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+    .step-body { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .step-tip {
+      background: var(--primary-50);
+      border: 1px solid var(--primary-100);
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--primary-dark);
+      margin-top: 8px;
+    }
+
+    /* Right: sidebar cards */
+    .help-sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Contact card */
+    .contact-item {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: start;
+    }
+    .contact-item:last-child { border: 0; }
+    .contact-ic {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .contact-item .nm { font-size: 13px; font-weight: 700; }
+    .contact-item .val { font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; }
+    .contact-item .note { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+    /* Changelog */
+    .cl-item {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .cl-item:last-child { border: 0; }
+    .cl-ver {
+      font-size: 12.5px; font-weight: 800;
+      color: var(--primary-dark);
+    }
+    .cl-date { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .cl-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .cl-notes { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .cl-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 10.5px; font-weight: 700;
+      margin-right: 4px; margin-bottom: 4px;
+    }
+    .cl-tag.new     { background: var(--aman-bg); color: #166534; }
+    .cl-tag.fix     { background: var(--kritis-bg); color: #991B1B; }
+    .cl-tag.improve { background: var(--perhatian-bg); color: #92400E; }
+
+    /* Popular topics chips */
+    .topic-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .topic-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .topic-chip:hover { background: var(--primary-50); border-color: var(--primary-200); color: var(--primary-dark); }
+    .topic-chip .ct {
+      background: var(--border);
+      border-radius: 999px;
+      padding: 0 5px;
+      font-size: 10px; font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="app">
+    <div class="main">
+
+      <div class="page-header">
+        <div>
+          <h1>Pusat Bantuan</h1>
+          <p>Panduan penggunaan, FAQ, dan dukungan teknis sistem MBG Bondowoso</p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-outline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Kirim Tiket
+          </button>
+        </div>
+      </div>
+
+      <!-- Search hero -->
+      <div class="help-hero">
+        <h2>Ada yang bisa kami bantu?</h2>
+        <p>Cari panduan, atau telusuri topik di bawah ini.</p>
+        <div class="help-search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input placeholder="Ketik pertanyaan, misal: cara tambah stok, export laporan..." />
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div class="quick-links">
+        <a class="ql" href="#panduan">
+          <div class="ic" style="background: var(--primary-50); color: var(--primary-dark);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <div>
+            <div class="ttl">Panduan Pengguna</div>
+            <div class="sub">Langkah-langkah menggunakan tiap modul sistem</div>
+          </div>
+        </a>
+        <a class="ql" href="#faq">
+          <div class="ic" style="background: var(--info-bg); color: var(--info);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="ttl">FAQ</div>
+            <div class="sub">Pertanyaan yang paling sering ditanyakan admin</div>
+          </div>
+        </a>
+        <a class="ql" href="#kontak">
+          <div class="ic" style="background: var(--perhatian-bg); color: var(--perhatian);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div>
+            <div class="ttl">Hubungi Tim IT</div>
+            <div class="sub">Laporkan bug atau minta bantuan teknis langsung</div>
+          </div>
+        </a>
+        <a class="ql" href="#changelog">
+          <div class="ic" style="background: var(--aman-bg); color: var(--aman);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div>
+            <div class="ttl">Riwayat Pembaruan</div>
+            <div class="sub">Changelog dan fitur baru dari setiap versi sistem</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="help-layout">
+
+        <!-- Left: Guide + FAQ -->
+        <div>
+
+          <!-- Panduan per modul -->
+          <div class="card guide-section" id="panduan" style="padding: 0; margin-bottom: 20px;">
+            <div class="card-h">
+              <div>
+                <h3>Panduan Penggunaan Modul</h3>
+                <div class="sub">Pilih modul untuk melihat langkah-langkah penggunaan</div>
+              </div>
+            </div>
+            <div class="guide-tabs" id="guideTabs">
+              <button class="guide-tab active" data-tab="dashboard">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                Dashboard
+              </button>
+              <button class="guide-tab" data-tab="bahan">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                Bahan Baku
+              </button>
+              <button class="guide-tab" data-tab="peta">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+                Peta Stok
+              </button>
+              <button class="guide-tab" data-tab="laporan">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                Laporan
+              </button>
+              <button class="guide-tab" data-tab="pj">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                PJ Wilayah
+              </button>
+            </div>
+
+            <div class="guide-content active" id="tab-dashboard">
+              <ul class="step-list">
+                <li class="step-item">
+                  <div class="step-num">1</div>
+                  <div>
+                    <div class="step-ttl">Baca KPI Ringkasan</div>
+                    <div class="step-body">Di bagian atas halaman dashboard terdapat 4 kartu KPI: Total Stok Aman, Stok Kritis, Kecamatan Terpantau, dan Total Jenis Bahan Baku. Kartu ini diperbarui otomatis setiap 30 menit.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">2</div>
+                  <div>
+                    <div class="step-ttl">Pantau Grafik Perbandingan Stok</div>
+                    <div class="step-body">Grafik batang menampilkan stok per kecamatan dengan 3 lapisan warna: Hijau (aman), Kuning (perhatian), Merah (kritis). Gunakan tombol <strong>7 Hari / 30 Hari / 90 Hari</strong> untuk mengubah rentang waktu.</div>
+                    <div class="step-tip">💡 Hover mouse di atas batang untuk melihat detail stok kecamatan tersebut.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">3</div>
+                  <div>
+                    <div class="step-ttl">Tindak Lanjut Stok Kritis</div>
+                    <div class="step-body">Tabel <strong>Daftar Stok Kritis Terbaru</strong> menampilkan item yang paling mendesak. Klik tombol <strong>Tindak</strong> di tiap baris untuk langsung membuka modal pembaruan stok.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">4</div>
+                  <div>
+                    <div class="step-ttl">Gunakan Aksi Cepat</div>
+                    <div class="step-body">Panel <strong>Aksi Cepat</strong> di kanan bawah menyediakan shortcut ke modul utama: Tambah Stok, Lihat Peta, Buat Laporan, dan Kirim Peringatan ke PJ wilayah.</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="guide-content" id="tab-bahan">
+              <ul class="step-list">
+                <li class="step-item">
+                  <div class="step-num">1</div>
+                  <div>
+                    <div class="step-ttl">Filter Berdasarkan Kategori</div>
+                    <div class="step-body">Gunakan tab di bagian atas tabel (Semua, Protein, Karbohidrat, Sayuran, Bumbu Dasar) untuk menyaring bahan baku per kategori. Angka di setiap tab menunjukkan jumlah item.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">2</div>
+                  <div>
+                    <div class="step-ttl">Tambah Bahan Baku Baru</div>
+                    <div class="step-body">Klik tombol <strong>+ Tambah Bahan Baku</strong> di kanan atas. Isi form: nama, kategori, kecamatan, jumlah stok, satuan, minimum stok, dan data PJ wilayah. Klik <strong>Simpan</strong>.</div>
+                    <div class="step-tip">💡 Minimum stok adalah acuan sistem untuk menentukan status. Stok &lt; 40% minimum = Kritis.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">3</div>
+                  <div>
+                    <div class="step-ttl">Edit atau Hapus Data</div>
+                    <div class="step-body">Di setiap baris tabel terdapat 3 ikon aksi: <strong>mata</strong> (lihat detail), <strong>pensil</strong> (edit), dan <strong>tempat sampah</strong> (hapus). Perubahan dicatat di log aktivitas sistem.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">4</div>
+                  <div>
+                    <div class="step-ttl">Import Data Massal via Excel</div>
+                    <div class="step-body">Klik <strong>Impor Excel</strong> untuk mengunggah file <code>.xlsx</code>. Format kolom: Nama Bahan, Kategori, Kecamatan, Stok, Satuan, Min. Stok, Nama PJ, Kontak PJ.</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="guide-content" id="tab-peta">
+              <ul class="step-list">
+                <li class="step-item">
+                  <div class="step-num">1</div>
+                  <div>
+                    <div class="step-ttl">Baca Warna Hex Map</div>
+                    <div class="step-body">Peta menampilkan 23 kecamatan dalam bentuk heksagon. <strong>Hijau</strong> = aman, <strong>Kuning</strong> = perlu perhatian, <strong>Merah</strong> = kritis. Legenda ada di bawah toolbar.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">2</div>
+                  <div>
+                    <div class="step-ttl">Klik Kecamatan untuk Detail</div>
+                    <div class="step-body">Klik heksagon kecamatan manapun untuk menampilkan panel detail di sebelah kanan: informasi PJ, total stok, daftar bahan baku per item beserta persentase terhadap target.</div>
+                    <div class="step-tip">💡 Kecamatan dengan border tebal = sedang dipilih/aktif.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">3</div>
+                  <div>
+                    <div class="step-ttl">Filter per Kategori Bahan</div>
+                    <div class="step-body">Gunakan chip filter di toolbar peta (Protein, Karbohidrat, Sayuran, Bumbu Dasar) untuk melihat kondisi stok berdasarkan kategori tertentu saja.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">4</div>
+                  <div>
+                    <div class="step-ttl">Ekspor Peta sebagai PDF</div>
+                    <div class="step-body">Klik <strong>Ekspor PDF</strong> di kanan atas untuk menyimpan tampilan peta saat ini sebagai dokumen PDF yang bisa dilampirkan ke laporan dinas.</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="guide-content" id="tab-laporan">
+              <ul class="step-list">
+                <li class="step-item">
+                  <div class="step-num">1</div>
+                  <div>
+                    <div class="step-ttl">Atur Filter Laporan</div>
+                    <div class="step-body">Pilih kecamatan, kategori bahan baku, dan rentang tanggal. Gunakan chip cepat <strong>7 Hari / 30 Hari / 90 Hari</strong> untuk filter cepat. Klik <strong>Terapkan</strong> untuk memuat data.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">2</div>
+                  <div>
+                    <div class="step-ttl">Baca Grafik Tren Mingguan</div>
+                    <div class="step-body">Grafik garis menampilkan tren stok 4 kategori selama periode pilihan. Titik merah = kritis pernah terjadi. Toggle antara <strong>Mingguan / Harian / Bulanan</strong>.</div>
+                    <div class="step-tip">💡 Area berwarna transparan di bawah garis membantu membandingkan volume antar kategori.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">3</div>
+                  <div>
+                    <div class="step-ttl">Baca Tabel Rekap Kecamatan</div>
+                    <div class="step-body">Tabel di bawah menampilkan rekap stok per kategori untuk semua 23 kecamatan. Sel berwarna merah = di bawah ambang kritis, kuning = perlu perhatian, hijau = aman.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">4</div>
+                  <div>
+                    <div class="step-ttl">Ekspor & Cetak</div>
+                    <div class="step-body">Gunakan tombol <strong>Ekspor Excel</strong>, <strong>Ekspor PDF</strong>, atau <strong>Cetak Laporan</strong>. Mode cetak otomatis menyembunyikan sidebar dan toolbar untuk tampilan yang rapi.</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="guide-content" id="tab-pj">
+              <ul class="step-list">
+                <li class="step-item">
+                  <div class="step-num">1</div>
+                  <div>
+                    <div class="step-ttl">Lihat Daftar PJ</div>
+                    <div class="step-body">Halaman PJ Wilayah menampilkan semua 23 penanggung jawab kecamatan. Tersedia dua mode: <strong>Grid</strong> (kartu visual) dan <strong>Tabel</strong>. Toggle di kanan atas.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">2</div>
+                  <div>
+                    <div class="step-ttl">Klik Kartu PJ untuk Detail</div>
+                    <div class="step-body">Klik kartu atau ikon mata di tabel untuk membuka panel detail di sebelah kanan: info kontak, ringkasan stok wilayah, dan riwayat aktivitas pembaruan terakhir.</div>
+                    <div class="step-tip">💡 Warna avatar PJ menunjukkan status wilayahnya: hijau = aman, kuning = perhatian, merah = kritis.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">3</div>
+                  <div>
+                    <div class="step-ttl">Tambah PJ Baru</div>
+                    <div class="step-body">Klik <strong>+ Tambah PJ Baru</strong>. Isi nama, NIP, jabatan, kontak, dan kecamatan yang ditangani. Sistem otomatis menghubungkan data stok kecamatan ke PJ tersebut.</div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-num">4</div>
+                  <div>
+                    <div class="step-ttl">Hubungi PJ Langsung</div>
+                    <div class="step-body">Dari panel detail atau kartu, klik tombol <strong>Hubungi PJ</strong> untuk membuka aplikasi telepon/WhatsApp dengan nomor PJ yang sudah tersimpan.</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- FAQ -->
+          <div class="card" id="faq" style="padding: 0;">
+            <div class="card-h">
+              <div>
+                <h3>Pertanyaan yang Sering Diajukan</h3>
+                <div class="sub">Temukan jawaban cepat untuk pertanyaan umum</div>
+              </div>
+            </div>
+
+            <div style="padding: 16px 20px 4px;">
+              <div class="faq-cat">Stok & Data</div>
+            </div>
+            <div class="faq-item" id="faq1">
+              <div class="faq-q" onclick="toggleFaq('faq1')">
+                Bagaimana sistem menentukan status stok (Aman / Perlu Perhatian / Kritis)?
+                <div class="arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="faq-a">
+                Status ditentukan berdasarkan <strong>persentase stok saat ini terhadap minimum stok</strong> yang ditetapkan:
+                <ul>
+                  <li><strong>Aman</strong>: stok ≥ 80% dari minimum stok</li>
+                  <li><strong>Perlu Perhatian</strong>: stok antara 40% – 79% dari minimum stok</li>
+                  <li><strong>Kritis</strong>: stok &lt; 40% dari minimum stok</li>
+                </ul>
+                Ambang batas ini dapat diubah di halaman <strong>Pengaturan → Ambang Stok</strong>.
+              </div>
+            </div>
+            <div class="faq-item" id="faq2">
+              <div class="faq-q" onclick="toggleFaq('faq2')">
+                Berapa lama data diperbarui secara otomatis?
+                <div class="arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="faq-a">
+                Secara default, sistem melakukan sinkronisasi data dari PJ wilayah setiap <strong>30 menit</strong>. Anda juga bisa memicu sinkronisasi manual dengan klik tombol <strong>Sinkronkan Data</strong> di dashboard. Frekuensi sinkronisasi dapat diubah di Pengaturan → Ambang Stok.
+              </div>
+            </div>
+            <div class="faq-item" id="faq3">
+              <div class="faq-q" onclick="toggleFaq('faq3')">
+                Apakah data stok yang diinput PJ bisa diedit oleh admin?
+                <div class="arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="faq-a">
+                Ya. Admin Dinas memiliki hak penuh untuk mengedit, menambah, atau menghapus data stok bahan baku. Setiap perubahan dicatat di <strong>Log Aktivitas</strong> (Pengaturan → Log Aktivitas) beserta nama pengguna dan waktu perubahan.
+              </div>
+            </div>
+
+            <div style="padding: 16px 20px 4px;">
+              <div class="faq-cat">Laporan & Ekspor</div>
+            </div>
+            <div class="faq-item" id="faq4">
+              <div class="faq-q" onclick="toggleFaq('faq4')">
+                Format apa saja yang tersedia untuk ekspor laporan?
+                <div class="arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="faq-a">
+                Laporan dapat diekspor dalam format:
+                <ul>
+                  <li><strong>Excel (.xlsx)</strong> – untuk analisis data lanjutan</li>
+                  <li><strong>PDF</strong> – untuk dokumentasi resmi dan arsip dinas</li>
+                  <li><strong>Cetak langsung</strong> – tampilan dioptimalkan untuk printer, tanpa sidebar/navbar</li>
+                </ul>
+              </div>
+            </div>
+            <div class="faq-item" id="faq5">
+              <div class="faq-q" onclick="toggleFaq('faq5')">
+                Bisakah laporan difilter hanya untuk kecamatan tertentu?
+                <div class="arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="faq-a">
+                Bisa. Di halaman Laporan, gunakan filter <strong>Kecamatan</strong> di bagian atas untuk memilih 1 kecamatan atau semua kecamatan sekaligus. Kombinasikan dengan filter Kategori dan Rentang Tanggal untuk laporan yang lebih spesifik.
+              </div>
+            </div>
+
+            <div style="padding: 16px 20px 4px;">
+              <div class="faq-cat">Akun & Akses</div>
+            </div>
+            <div class="faq-item" id="faq6">
+              <div class="faq-q" onclick="toggleFaq('faq6')">
+                Apa perbedaan peran Admin Dinas, PJ Wilayah, dan Pengamat?
+                <div class="arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="faq-a">
+                <ul>
+                  <li><strong>Admin Dinas</strong>: akses penuh — bisa membaca, menambah, mengedit, menghapus semua data dan mengatur pengguna lain.</li>
+                  <li><strong>PJ Wilayah</strong>: hanya bisa memperbarui stok di kecamatan yang ditugaskan, tidak bisa mengubah data kecamatan lain.</li>
+                  <li><strong>Pengamat</strong>: hanya bisa melihat data dan laporan, tidak bisa mengubah apapun.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="faq-item" id="faq7">
+              <div class="faq-q" onclick="toggleFaq('faq7')">
+                Bagaimana cara reset kata sandi jika lupa?
+                <div class="arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="faq-a">
+                Di halaman login, klik <strong>Lupa sandi?</strong> di sebelah label Kata Sandi. Sistem akan mengirim tautan reset kata sandi ke email yang terdaftar. Tautan berlaku selama 30 menit. Jika email tidak masuk, periksa folder spam atau hubungi Admin Dinas.
+              </div>
+            </div>
+            <div class="faq-item" id="faq8" style="margin-bottom: 8px;">
+              <div class="faq-q" onclick="toggleFaq('faq8')">
+                Sistem tidak menampilkan data terbaru, apa yang harus dilakukan?
+                <div class="arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="faq-a">
+                Coba langkah berikut secara berurutan:
+                <ul>
+                  <li>Klik tombol <strong>Sinkronkan Data</strong> di dashboard</li>
+                  <li>Refresh halaman (<code>Ctrl+R</code> atau <code>Cmd+R</code>)</li>
+                  <li>Hapus cache browser (<code>Ctrl+Shift+Del</code>)</li>
+                  <li>Jika masalah berlanjut, hubungi Tim IT di bawah</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right sidebar -->
+        <div class="help-sidebar">
+
+          <!-- Topik populer -->
+          <div class="card">
+            <div class="card-h">
+              <div>
+                <h3>Topik Populer</h3>
+                <div class="sub">Topik yang paling sering dicari</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="topic-chips">
+                <span class="topic-chip">Tambah stok <span class="ct">24</span></span>
+                <span class="topic-chip">Export laporan <span class="ct">18</span></span>
+                <span class="topic-chip">Status kritis <span class="ct">15</span></span>
+                <span class="topic-chip">Import Excel <span class="ct">12</span></span>
+                <span class="topic-chip">Reset password <span class="ct">11</span></span>
+                <span class="topic-chip">Peta stok <span class="ct">9</span></span>
+                <span class="topic-chip">Tambah PJ <span class="ct">8</span></span>
+                <span class="topic-chip">Notifikasi <span class="ct">7</span></span>
+                <span class="topic-chip">Kategori bahan <span class="ct">6</span></span>
+                <span class="topic-chip">Ambang stok <span class="ct">5</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kontak Tim IT -->
+          <div class="card" id="kontak">
+            <div class="card-h">
+              <div>
+                <h3>Hubungi Tim IT</h3>
+                <div class="sub">Dukungan teknis Sistem MBG</div>
+              </div>
+            </div>
+            <div class="card-body" style="padding-top: 8px; padding-bottom: 8px;">
+              <div class="contact-item">
+                <div class="contact-ic" style="background: var(--info-bg); color: var(--info);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <div>
+                  <div class="nm">Email</div>
+                  <div class="val">it-mbg@bondowosokab.go.id</div>
+                  <div class="note">Respons dalam 1×24 jam kerja</div>
+                </div>
+              </div>
+              <div class="contact-item">
+                <div class="contact-ic" style="background: var(--aman-bg); color: var(--aman);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
+                <div>
+                  <div class="nm">WhatsApp Teknis</div>
+                  <div class="val">0812-3400-9900</div>
+                  <div class="note">Senin – Jumat · 08.00 – 16.00 WIB</div>
+                </div>
+              </div>
+              <div class="contact-item">
+                <div class="contact-ic" style="background: var(--perhatian-bg); color: var(--perhatian);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div>
+                  <div class="nm">Hotline Darurat</div>
+                  <div class="val">0812-3400-9911</div>
+                  <div class="note">Untuk gangguan sistem kritis · 24 jam</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 12px 20px; border-top: 1px solid var(--border);">
+              <button class="btn btn-primary" style="width:100%; justify-content:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Kirim Tiket Bantuan
+              </button>
+            </div>
+          </div>
+
+          <!-- Changelog -->
+          <div class="card" id="changelog">
+            <div class="card-h">
+              <div>
+                <h3>Riwayat Pembaruan</h3>
+                <div class="sub">Versi dan fitur terbaru sistem</div>
+              </div>
+            </div>
+            <div class="card-body" style="padding-top: 8px; padding-bottom: 8px;">
+              <div class="cl-item">
+                <div>
+                  <div class="cl-ver">v1.4.2</div>
+                  <div class="cl-date">28 Mei 2026</div>
+                </div>
+                <div>
+                  <div class="cl-title">Modul PJ Wilayah & Kategori</div>
+                  <div style="margin-bottom:6px;">
+                    <span class="cl-tag new">Baru</span>
+                    <span class="cl-tag new">Baru</span>
+                  </div>
+                  <div class="cl-notes">Halaman PJ Wilayah (kartu + tabel + drawer detail) dan halaman Kategori Bahan Baku dengan hero cards interaktif.</div>
+                </div>
+              </div>
+              <div class="cl-item">
+                <div>
+                  <div class="cl-ver">v1.4.0</div>
+                  <div class="cl-date">15 Mei 2026</div>
+                </div>
+                <div>
+                  <div class="cl-title">Peta Hex & Laporan PDF</div>
+                  <div style="margin-bottom:6px;">
+                    <span class="cl-tag new">Baru</span>
+                    <span class="cl-tag improve">Peningkatan</span>
+                  </div>
+                  <div class="cl-notes">Peta heksagon 23 kecamatan dengan detail panel. Mode cetak laporan tanpa sidebar.</div>
+                </div>
+              </div>
+              <div class="cl-item">
+                <div>
+                  <div class="cl-ver">v1.3.1</div>
+                  <div class="cl-date">2 Mei 2026</div>
+                </div>
+                <div>
+                  <div class="cl-title">Perbaikan Notifikasi</div>
+                  <div style="margin-bottom:6px;">
+                    <span class="cl-tag fix">Perbaikan</span>
+                  </div>
+                  <div class="cl-notes">Notifikasi email kritis gagal terkirim jika stok diupdate melalui import Excel. Sudah diperbaiki.</div>
+                </div>
+              </div>
+              <div class="cl-item">
+                <div>
+                  <div class="cl-ver">v1.3.0</div>
+                  <div class="cl-date">18 Apr 2026</div>
+                </div>
+                <div>
+                  <div class="cl-title">Dashboard Baru & 2FA</div>
+                  <div style="margin-bottom:6px;">
+                    <span class="cl-tag new">Baru</span>
+                    <span class="cl-tag improve">Peningkatan</span>
+                  </div>
+                  <div class="cl-notes">Redesign dashboard dengan grafik batang per kecamatan. Autentikasi dua faktor via OTP SMS.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- System status -->
+          <div class="card">
+            <div class="card-h">
+              <div>
+                <h3>Status Sistem</h3>
+                <div class="sub">Kondisi layanan saat ini</div>
+              </div>
+            </div>
+            <div class="card-body" style="padding-top: 10px; padding-bottom: 10px;">
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                  <span style="color:var(--text-secondary);">Aplikasi Web</span>
+                  <span class="badge aman" style="font-size:11px;">Beroperasi</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                  <span style="color:var(--text-secondary);">Database Stok</span>
+                  <span class="badge aman" style="font-size:11px;">Beroperasi</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                  <span style="color:var(--text-secondary);">Sinkronisasi Data</span>
+                  <span class="badge aman" style="font-size:11px;">Beroperasi</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                  <span style="color:var(--text-secondary);">Notifikasi Email</span>
+                  <span class="badge aman" style="font-size:11px;">Beroperasi</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                  <span style="color:var(--text-secondary);">API Integrasi SIPD</span>
+                  <span class="badge aman" style="font-size:11px;">Beroperasi</span>
+                </div>
+              </div>
+              <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border); font-size:11.5px; color:var(--text-muted); text-align:center;">
+                Semua sistem beroperasi normal · Uptime 99.97% (30 hari)
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end help-sidebar -->
+
+      </div><!-- end help-layout -->
+
+    </div>
+  </main>
+
+  <script src="assets/shell.js"></script>
+  <script>
+    renderShell({ active: 'help', page: 'Bantuan', crumb: 'Sistem · Pusat Bantuan' });
+
+    // FAQ toggle
+    function toggleFaq(id) {
+      const item = document.getElementById(id);
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(x => x.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    }
+
+    // Guide tabs
+    document.querySelectorAll('.guide-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.guide-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.guide-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Hero search filter FAQs
+    document.querySelector('.help-search input').addEventListener('input', function() {
+      const q = this.value.trim().toLowerCase();
+      if (!q) {
+        document.querySelectorAll('.faq-item').forEach(x => x.style.display = '');
+        return;
+      }
+      document.querySelectorAll('.faq-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(q) ? '' : 'none';
+        if (text.includes(q)) item.classList.add('open');
+      });
+    });
+  </script>
+</body>
+</html>

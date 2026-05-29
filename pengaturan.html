@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Pengaturan — MBG Bondowoso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    /* Two-col settings layout */
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Left nav */
+    .settings-nav {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 8px;
+      position: sticky;
+      top: calc(var(--topbar-h) + 24px);
+    }
+    .sn-group {
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 10px 12px 5px;
+    }
+    .sn-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .sn-item:hover { background: var(--primary-50); color: var(--primary-dark); }
+    .sn-item.active {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+    }
+    .sn-item svg { flex-shrink: 0; opacity: .7; }
+    .sn-item.active svg { opacity: 1; }
+
+    /* Right sections */
+    .settings-sections { display: flex; flex-direction: column; gap: 20px; }
+
+    /* Section anchor target offset */
+    .section-anchor { scroll-margin-top: calc(var(--topbar-h) + 32px); }
+
+    /* Profile avatar upload */
+    .avatar-upload {
+      display: flex; align-items: center; gap: 20px;
+      padding: 16px 0;
+    }
+    .avatar-big {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 24px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .avatar-big .change-btn {
+      position: absolute; bottom: 0; right: 0;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--text-secondary);
+    }
+    .avatar-upload .meta { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* 2-col form grid */
+    .form-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-2 .full { grid-column: 1 / -1; }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .toggle-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .toggle-row .lhs {}
+    .toggle-row .ttl { font-size: 13.5px; font-weight: 600; }
+    .toggle-row .sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+    .toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider {
+      position: absolute; inset: 0;
+      background: var(--border-strong);
+      border-radius: 999px;
+      transition: background .2s;
+      cursor: pointer;
+    }
+    .toggle .slider::before {
+      content: "";
+      position: absolute;
+      width: 18px; height: 18px;
+      left: 3px; top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+    }
+    .toggle input:checked + .slider { background: var(--primary); }
+    .toggle input:checked + .slider::before { transform: translateX(20px); }
+
+    /* Threshold slider */
+    .threshold-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .threshold-row:last-child { border: 0; padding-bottom: 0; }
+    .threshold-row .lbl { font-size: 13.5px; font-weight: 600; }
+    .threshold-row .sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .threshold-val {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      border-radius: 8px;
+      padding: 4px 12px;
+      min-width: 52px;
+      text-align: center;
+    }
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--primary);
+      height: 4px;
+      margin-top: 8px;
+    }
+
+    /* Role badge */
+    .role-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--primary-50);
+      border: 1px solid var(--primary-200);
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    /* User list */
+    .user-row {
+      display: grid;
+      grid-template-columns: 40px 1fr auto auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .user-row:last-child { border: 0; padding-bottom: 0; }
+    .user-av {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .user-row .nm { font-size: 13.5px; font-weight: 600; }
+    .user-row .em { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Danger zone */
+    .danger-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      border: 1px solid #FCA5A5;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: #FFF5F5;
+    }
+    .danger-row:last-child { margin-bottom: 0; }
+    .danger-row .ttl { font-size: 13.5px; font-weight: 600; color: #991B1B; }
+    .danger-row .sub { font-size: 12px; color: #B91C1C; margin-top: 3px; opacity: .8; }
+
+    /* Save bar */
+    .save-bar {
+      position: sticky;
+      bottom: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      z-index: 10;
+      box-shadow: 0 -4px 12px rgba(15,23,42,.06);
+    }
+    .save-bar .meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+    .save-bar .dot-saved { width: 8px; height: 8px; border-radius: 50%; background: var(--aman); }
+
+    /* Color scheme picker */
+    .scheme-opts {
+      display: flex; gap: 10px; margin-top: 8px;
+    }
+    .scheme-opt {
+      flex: 1;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      transition: border-color .15s;
+      text-align: center;
+    }
+    .scheme-opt.selected { border-color: var(--primary); }
+    .scheme-preview {
+      height: 48px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: 30% 1fr;
+      overflow: hidden;
+      gap: 2px;
+    }
+    .scheme-opt .lbl { font-size: 12px; font-weight: 600; }
+
+    /* API key row */
+    .api-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+    }
+    .api-row .key { flex: 1; letter-spacing: 0.04em; }
+    .api-row button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all .15s;
+    }
+    .api-row button:hover { background: var(--primary-50); border-color: var(--primary-200); color: var(--primary-dark); }
+
+    /* Log list */
+    .log-item {
+      display: grid;
+      grid-template-columns: 90px 1fr 120px;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 12.5px;
+    }
+    .log-item:last-child { border: 0; }
+    .log-item .time { color: var(--text-muted); font-feature-settings: "tnum"; }
+    .log-item .action { color: var(--text); }
+    .log-item .by { color: var(--text-secondary); text-align: right; }
+  </style>
+</head>
+<body>
+
+  <main class="app">
+    <div class="main">
+
+      <div class="page-header">
+        <div>
+          <h1>Pengaturan</h1>
+          <p>Kelola profil, notifikasi, keamanan, dan konfigurasi sistem MBG Bondowoso</p>
+        </div>
+        <div class="actions">
+          <span style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+            <span style="width:8px; height:8px; border-radius:50%; background:var(--aman); display:inline-block;"></span>
+            Tersimpan otomatis
+          </span>
+        </div>
+      </div>
+
+      <div class="settings-layout">
+
+        <!-- Left nav -->
+        <nav class="settings-nav">
+          <div class="sn-group">Akun</div>
+          <a class="sn-item active" href="#profil">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Profil
+          </a>
+          <a class="sn-item" href="#keamanan">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Keamanan
+          </a>
+          <div class="sn-group">Sistem</div>
+          <a class="sn-item" href="#notifikasi">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Notifikasi
+          </a>
+          <a class="sn-item" href="#tampilan">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Tampilan
+          </a>
+          <a class="sn-item" href="#stok">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            Ambang Stok
+          </a>
+          <a class="sn-item" href="#pengguna">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Pengguna & Akses
+          </a>
+          <div class="sn-group">Integrasi</div>
+          <a class="sn-item" href="#api">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            API & Integrasi
+          </a>
+          <a class="sn-item" href="#log">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Log Aktivitas
+          </a>
+          <div class="sn-group">Lainnya</div>
+          <a class="sn-item" href="#danger">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Zona Bahaya
+          </a>
+        </nav>
+
+        <!-- Right sections -->
+        <div class="settings-sections">
+
+          <!-- ===== Profil ===== -->
+          <div class="card section-anchor" id="profil">
+            <div class="card-h">
+              <div>
+                <h3>Profil Pengguna</h3>
+                <div class="sub">Informasi identitas akun Anda</div>
+              </div>
+              <span class="role-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v6c0 5 3.8 8.7 9 10 5.2-1.3 9-5 9-10V7l-9-5z"/></svg>
+                Admin Dinas
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="avatar-upload">
+                <div class="avatar-big">
+                  SR
+                  <button class="change-btn" title="Ganti foto">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                </div>
+                <div>
+                  <div style="font-weight:700; font-size:15px;">Sri Rahayu</div>
+                  <div class="meta">JPG atau PNG · Maks. 2 MB · Rasio 1:1</div>
+                  <div style="display:flex; gap:6px; margin-top:8px;">
+                    <button class="btn btn-outline btn-sm">Upload Foto</button>
+                    <button class="btn btn-ghost btn-sm" style="color:var(--kritis);">Hapus</button>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="divider" />
+
+              <div class="form-2">
+                <div class="field">
+                  <label>Nama Depan</label>
+                  <input class="input" value="Sri" />
+                </div>
+                <div class="field">
+                  <label>Nama Belakang</label>
+                  <input class="input" value="Rahayu" />
+                </div>
+                <div class="field">
+                  <label>NIP</label>
+                  <input class="input" value="197803142006042012" />
+                </div>
+                <div class="field">
+                  <label>Jabatan</label>
+                  <input class="input" value="Kepala Seksi Ketersediaan Pangan" />
+                </div>
+                <div class="field full">
+                  <label>Email</label>
+                  <input class="input" type="email" value="sri.rahayu@bondowosokab.go.id" />
+                </div>
+                <div class="field">
+                  <label>No. Telepon</label>
+                  <input class="input" value="081234567890" />
+                </div>
+                <div class="field">
+                  <label>Unit Kerja</label>
+                  <input class="input" value="Dinas Ketahanan Pangan" />
+                </div>
+              </div>
+            </div>
+            <div class="save-bar">
+              <span class="meta"><span class="dot-saved"></span> Perubahan terakhir disimpan 09:42 WIB</span>
+              <div style="display:flex; gap:8px;">
+                <button class="btn">Batalkan</button>
+                <button class="btn btn-primary">Simpan Perubahan</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Keamanan ===== -->
+          <div class="card section-anchor" id="keamanan">
+            <div class="card-h">
+              <div>
+                <h3>Keamanan Akun</h3>
+                <div class="sub">Kata sandi dan autentikasi dua faktor</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-2">
+                <div class="field full">
+                  <label>Kata Sandi Saat Ini</label>
+                  <input class="input" type="password" placeholder="••••••••" />
+                </div>
+                <div class="field">
+                  <label>Kata Sandi Baru</label>
+                  <input class="input" type="password" placeholder="Min. 8 karakter" />
+                </div>
+                <div class="field">
+                  <label>Konfirmasi Kata Sandi</label>
+                  <input class="input" type="password" placeholder="Ketik ulang" />
+                </div>
+              </div>
+
+              <hr class="divider" />
+
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Autentikasi Dua Faktor (2FA)</div>
+                  <div class="sub">Verifikasi identitas via OTP SMS/email setiap login</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Ingat Perangkat Selama 7 Hari</div>
+                  <div class="sub">Lewati verifikasi pada perangkat yang sudah dipercaya</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Notifikasi Login Baru</div>
+                  <div class="sub">Kirim email peringatan saat ada login dari perangkat baru</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+            </div>
+            <div class="save-bar">
+              <span class="meta"><span class="dot-saved"></span> Aman · Terakhir diubah 14 April 2026</span>
+              <div style="display:flex; gap:8px;">
+                <button class="btn">Batalkan</button>
+                <button class="btn btn-primary">Perbarui Kata Sandi</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Notifikasi ===== -->
+          <div class="card section-anchor" id="notifikasi">
+            <div class="card-h">
+              <div>
+                <h3>Notifikasi & Peringatan</h3>
+                <div class="sub">Atur kapan dan bagaimana sistem mengirim alert stok</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:10px;">Saluran Notifikasi</div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Notifikasi Email</div>
+                  <div class="sub">Kirim ringkasan harian ke sri.rahayu@bondowosokab.go.id</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">WhatsApp / SMS</div>
+                  <div class="sub">Peringatan darurat ke 081234567890</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Notifikasi Browser (Push)</div>
+                  <div class="sub">Alert real-time di browser saat stok berubah status</div>
+                </div>
+                <label class="toggle"><input type="checkbox" /><span class="slider"></span></label>
+              </div>
+
+              <hr class="divider" />
+              <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:10px;">Pemicu Peringatan</div>
+
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Stok Masuk Status Kritis (&lt; 40%)</div>
+                  <div class="sub">Notifikasi segera saat bahan baku turun ke level kritis</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Stok Masuk Status Perlu Perhatian (40–80%)</div>
+                  <div class="sub">Peringatan dini sebelum menjadi kritis</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Ringkasan Harian Stok (07.00 WIB)</div>
+                  <div class="sub">Laporan ringkas kondisi 23 kecamatan setiap pagi</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">PJ Belum Memperbarui Stok (> 24 jam)</div>
+                  <div class="sub">Ingatkan PJ yang belum melaporkan stok hari ini</div>
+                </div>
+                <label class="toggle"><input type="checkbox" /><span class="slider"></span></label>
+              </div>
+            </div>
+            <div class="save-bar">
+              <span class="meta"><span class="dot-saved"></span> Tersimpan</span>
+              <div style="display:flex; gap:8px;">
+                <button class="btn">Batalkan</button>
+                <button class="btn btn-primary">Simpan Preferensi</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Tampilan ===== -->
+          <div class="card section-anchor" id="tampilan">
+            <div class="card-h">
+              <div>
+                <h3>Tampilan & Bahasa</h3>
+                <div class="sub">Sesuaikan tampilan antarmuka sistem</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="field" style="margin-bottom: 18px;">
+                <label>Skema Warna</label>
+                <div class="scheme-opts">
+                  <div class="scheme-opt selected">
+                    <div class="scheme-preview">
+                      <div style="background:#1B5E20;"></div>
+                      <div style="background:#F4F6F4; display:flex; flex-direction:column; gap:2px; padding:4px;">
+                        <div style="height:6px; background:#E5E7EB; border-radius:2px;"></div>
+                        <div style="height:6px; background:#E5E7EB; border-radius:2px; width:60%;"></div>
+                      </div>
+                    </div>
+                    <div class="lbl">Hijau (Default)</div>
+                  </div>
+                  <div class="scheme-opt">
+                    <div class="scheme-preview">
+                      <div style="background:#1E3A5F;"></div>
+                      <div style="background:#F0F4F8; display:flex; flex-direction:column; gap:2px; padding:4px;">
+                        <div style="height:6px; background:#D1D5DB; border-radius:2px;"></div>
+                        <div style="height:6px; background:#D1D5DB; border-radius:2px; width:60%;"></div>
+                      </div>
+                    </div>
+                    <div class="lbl">Biru Navy</div>
+                  </div>
+                  <div class="scheme-opt">
+                    <div class="scheme-preview">
+                      <div style="background:#1F2937;"></div>
+                      <div style="background:#F9FAFB; display:flex; flex-direction:column; gap:2px; padding:4px;">
+                        <div style="height:6px; background:#E5E7EB; border-radius:2px;"></div>
+                        <div style="height:6px; background:#E5E7EB; border-radius:2px; width:60%;"></div>
+                      </div>
+                    </div>
+                    <div class="lbl">Abu Netral</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field" style="margin-bottom: 18px;">
+                <label>Bahasa</label>
+                <select class="input" style="max-width:280px;">
+                  <option selected>Bahasa Indonesia</option>
+                  <option>English</option>
+                </select>
+              </div>
+
+              <div class="field" style="margin-bottom: 18px;">
+                <label>Format Tanggal</label>
+                <select class="input" style="max-width:280px;">
+                  <option selected>DD MMMM YYYY (28 Mei 2026)</option>
+                  <option>DD/MM/YYYY (28/05/2026)</option>
+                  <option>YYYY-MM-DD (2026-05-28)</option>
+                </select>
+              </div>
+
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Sidebar Compact</div>
+                  <div class="sub">Tampilkan sidebar lebih ramping (ikon saja)</div>
+                </div>
+                <label class="toggle"><input type="checkbox" /><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Animasi Antarmuka</div>
+                  <div class="sub">Efek transisi halus saat berpindah halaman</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+            </div>
+            <div class="save-bar">
+              <span class="meta"><span class="dot-saved"></span> Tersimpan</span>
+              <div style="display:flex; gap:8px;">
+                <button class="btn">Batalkan</button>
+                <button class="btn btn-primary">Terapkan</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Ambang Stok ===== -->
+          <div class="card section-anchor" id="stok">
+            <div class="card-h">
+              <div>
+                <h3>Konfigurasi Ambang Stok</h3>
+                <div class="sub">Atur batas persentase untuk penentuan status stok otomatis</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="background: var(--info-bg); border: 1px solid #BAE6FD; border-radius: 10px; padding: 12px 16px; font-size: 12.5px; color: var(--info); margin-bottom: 18px; display: flex; gap: 10px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>Perubahan ambang berlaku untuk seluruh 23 kecamatan dan 47 jenis bahan baku secara langsung.</span>
+              </div>
+
+              <div class="threshold-row">
+                <div>
+                  <div class="lbl" style="color: var(--kritis);">Ambang Status Kritis</div>
+                  <div class="sub">Stok di bawah persentase ini dianggap kritis dan memerlukan tindakan segera</div>
+                  <input type="range" min="10" max="60" value="40" id="kritisSlider" />
+                </div>
+                <div class="threshold-val" id="kritisVal" style="background: var(--kritis);">40%</div>
+              </div>
+
+              <div class="threshold-row">
+                <div>
+                  <div class="lbl" style="color: var(--perhatian);">Ambang Perlu Perhatian</div>
+                  <div class="sub">Stok di antara ambang ini dan 100% diberi status perlu perhatian</div>
+                  <input type="range" min="50" max="90" value="80" id="perhatianSlider" />
+                </div>
+                <div class="threshold-val" id="perhatianVal" style="background: var(--perhatian);">80%</div>
+              </div>
+
+              <div class="threshold-row">
+                <div>
+                  <div class="lbl">Frekuensi Sinkronisasi Data</div>
+                  <div class="sub">Seberapa sering sistem memeriksa pembaruan stok dari PJ wilayah</div>
+                  <select class="input" style="max-width:240px; margin-top:8px;">
+                    <option>Setiap 15 menit</option>
+                    <option selected>Setiap 30 menit</option>
+                    <option>Setiap 1 jam</option>
+                    <option>Manual saja</option>
+                  </select>
+                </div>
+                <div class="threshold-val" style="background: var(--primary);">30m</div>
+              </div>
+            </div>
+            <div class="save-bar">
+              <span class="meta"><span class="dot-saved"></span> Kritis: 40% · Perhatian: 80%</span>
+              <div style="display:flex; gap:8px;">
+                <button class="btn">Batalkan</button>
+                <button class="btn btn-primary">Simpan Konfigurasi</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Pengguna & Akses ===== -->
+          <div class="card section-anchor" id="pengguna">
+            <div class="card-h">
+              <div>
+                <h3>Pengguna & Hak Akses</h3>
+                <div class="sub">Kelola akun pengguna dan peran dalam sistem</div>
+              </div>
+              <button class="btn btn-primary btn-sm">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Undang Pengguna
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="user-row">
+                <div class="user-av" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark));">SR</div>
+                <div>
+                  <div class="nm">Sri Rahayu <span style="font-size:11px; color:var(--text-muted); font-weight:400;">(Anda)</span></div>
+                  <div class="em">sri.rahayu@bondowosokab.go.id</div>
+                </div>
+                <span class="badge aman" style="font-size:11px;">Admin Dinas</span>
+                <button class="btn btn-ghost btn-sm" style="color:var(--text-muted);" disabled>–</button>
+              </div>
+              <div class="user-row">
+                <div class="user-av" style="background: linear-gradient(135deg, #0369A1, #0C4A6E);">HB</div>
+                <div>
+                  <div class="nm">Hasan Basri</div>
+                  <div class="em">h.basri@bondowosokab.go.id</div>
+                </div>
+                <span class="role-badge" style="font-size:11px; padding:3px 9px;">PJ Wilayah</span>
+                <button class="btn btn-ghost btn-sm">Edit</button>
+              </div>
+              <div class="user-row">
+                <div class="user-av" style="background: linear-gradient(135deg, #6D28D9, #4C1D95);">SA</div>
+                <div>
+                  <div class="nm">Sutrisno Aji</div>
+                  <div class="em">sutrisno.aji@bondowosokab.go.id</div>
+                </div>
+                <span class="role-badge" style="font-size:11px; padding:3px 9px;">PJ Wilayah</span>
+                <button class="btn btn-ghost btn-sm">Edit</button>
+              </div>
+              <div class="user-row">
+                <div class="user-av" style="background: linear-gradient(135deg, #B45309, #92400E);">DL</div>
+                <div>
+                  <div class="nm">Dewi Lestari</div>
+                  <div class="em">d.lestari@bondowosokab.go.id</div>
+                </div>
+                <span class="role-badge" style="font-size:11px; padding:3px 9px;">PJ Wilayah</span>
+                <button class="btn btn-ghost btn-sm">Edit</button>
+              </div>
+              <div class="user-row">
+                <div class="user-av" style="background: linear-gradient(135deg, #0369A1, #0C4A6E);">RT</div>
+                <div>
+                  <div class="nm">Rudi Trisno</div>
+                  <div class="em">r.trisno@bondowosokab.go.id</div>
+                </div>
+                <span class="badge perhatian" style="font-size:11px;">Pengamat</span>
+                <button class="btn btn-ghost btn-sm">Edit</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== API & Integrasi ===== -->
+          <div class="card section-anchor" id="api">
+            <div class="card-h">
+              <div>
+                <h3>API & Integrasi</h3>
+                <div class="sub">Kunci API dan koneksi ke sistem eksternal</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="field" style="margin-bottom: 16px;">
+                <label>Kunci API Sistem</label>
+                <div class="api-row">
+                  <span class="key">mbg_live_••••••••••••••••••••••••••••••••••••••••</span>
+                  <button>Salin</button>
+                  <button>Perbarui</button>
+                </div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">Digunakan untuk integrasi sistem PJ wilayah. Jangan bagikan ke publik.</div>
+              </div>
+
+              <hr class="divider" />
+
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Integrasi SIPD (Sistem Informasi Pemerintah Daerah)</div>
+                  <div class="sub">Sinkronisasi data anggaran dan distribusi otomatis</div>
+                </div>
+                <label class="toggle"><input type="checkbox" checked /><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="lhs">
+                  <div class="ttl">Webhook Notifikasi Eksternal</div>
+                  <div class="sub">Kirim event stok kritis ke sistem pihak ketiga via HTTP</div>
+                </div>
+                <label class="toggle"><input type="checkbox" /><span class="slider"></span></label>
+              </div>
+
+              <div class="field" style="margin-top: 16px;">
+                <label>URL Webhook</label>
+                <input class="input" placeholder="https://webhook.example.com/mbg-alert" disabled />
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Log Aktivitas ===== -->
+          <div class="card section-anchor" id="log">
+            <div class="card-h">
+              <div>
+                <h3>Log Aktivitas Sistem</h3>
+                <div class="sub">Riwayat perubahan dan aksi pengguna dalam 7 hari terakhir</div>
+              </div>
+              <button class="btn btn-outline btn-sm">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Ekspor Log
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="log-item"><span class="time">09:42 · Hari ini</span><span class="action">Memperbarui stok <strong>Telur Ayam</strong> di Kec. Wringin — 12 kg → 60 kg</span><span class="by">Sri Rahayu</span></div>
+              <div class="log-item"><span class="time">09:11 · Hari ini</span><span class="action">Laporan bulanan Mei 2026 diunduh (PDF)</span><span class="by">Sri Rahayu</span></div>
+              <div class="log-item"><span class="time">08:24 · Hari ini</span><span class="action">PJ baru ditambahkan: <strong>Bu Maryam</strong> — Kec. Botolinggo</span><span class="by">Sri Rahayu</span></div>
+              <div class="log-item"><span class="time">17:03 · Kemarin</span><span class="action">Ambang stok kritis diubah dari 35% → 40%</span><span class="by">Sri Rahayu</span></div>
+              <div class="log-item"><span class="time">14:55 · Kemarin</span><span class="action">Bahan baku <strong>Beras Premium</strong> di Kec. Maesan diperbarui — Sigit Pratomo</span><span class="by">Sigit Pratomo</span></div>
+              <div class="log-item"><span class="time">11:20 · Kemarin</span><span class="action">Sinkronisasi data manual dijalankan — 23 kecamatan berhasil</span><span class="by">Sistem</span></div>
+              <div class="log-item"><span class="time">09:00 · 27 Mei</span><span class="action">Ringkasan harian dikirim ke 3 admin aktif</span><span class="by">Sistem</span></div>
+            </div>
+          </div>
+
+          <!-- ===== Zona Bahaya ===== -->
+          <div class="card section-anchor" id="danger" style="border-color: #FCA5A5;">
+            <div class="card-h" style="background: #FFF5F5; border-bottom-color: #FCA5A5; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+              <div>
+                <h3 style="color: #991B1B;">Zona Bahaya</h3>
+                <div class="sub" style="color: #B91C1C;">Tindakan di bawah ini tidak dapat dibatalkan. Lanjutkan dengan hati-hati.</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="danger-row">
+                <div>
+                  <div class="ttl">Reset Semua Data Stok</div>
+                  <div class="sub">Menghapus seluruh data stok bahan baku di 23 kecamatan. Data laporan tetap ada.</div>
+                </div>
+                <button class="btn btn-sm" style="border-color:#FCA5A5; color: #991B1B; background:#FFF5F5; flex-shrink:0;">Reset Stok</button>
+              </div>
+              <div class="danger-row">
+                <div>
+                  <div class="ttl">Ekspor Seluruh Data & Hapus Akun</div>
+                  <div class="sub">Unduh semua data dalam format CSV/JSON, lalu nonaktifkan akun ini secara permanen.</div>
+                </div>
+                <button class="btn btn-sm" style="border-color:#FCA5A5; color: #991B1B; background:#FFF5F5; flex-shrink:0;">Ekspor & Hapus</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end settings-sections -->
+      </div><!-- end settings-layout -->
+
+    </div>
+  </main>
+
+  <script src="assets/shell.js"></script>
+  <script>
+    renderShell({ active: 'settings', page: 'Pengaturan', crumb: 'Sistem · Konfigurasi Akun' });
+
+    // Active nav highlight on scroll
+    const sections = document.querySelectorAll('.section-anchor');
+    const navItems = document.querySelectorAll('.sn-item');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navItems.forEach(n => n.classList.remove('active'));
+          const active = document.querySelector(`.sn-item[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => observer.observe(s));
+
+    // Slider
+    document.getElementById('kritisSlider').addEventListener('input', e => {
+      document.getElementById('kritisVal').textContent = e.target.value + '%';
+    });
+    document.getElementById('perhatianSlider').addEventListener('input', e => {
+      document.getElementById('perhatianVal').textContent = e.target.value + '%';
+    });
+
+    // Color scheme picker
+    document.querySelectorAll('.scheme-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        document.querySelectorAll('.scheme-opt').forEach(x => x.classList.remove('selected'));
+        opt.classList.add('selected');
+      });
+    });
+  </script>
+</body>
+</html>

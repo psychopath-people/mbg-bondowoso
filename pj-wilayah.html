@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>PJ Wilayah — MBG Bondowoso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <style>
+    /* KPI strip */
+    .pj-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .pj-kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+    }
+    .pj-kpi .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .pj-kpi .lbl { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+    .pj-kpi .ic {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .pj-kpi .ic.blue    { background: var(--info-bg); color: var(--info); }
+    .pj-kpi .ic.green   { background: var(--aman-bg); color: var(--aman); }
+    .pj-kpi .ic.yellow  { background: var(--perhatian-bg); color: var(--perhatian); }
+    .pj-kpi .ic.red     { background: var(--kritis-bg); color: var(--kritis); }
+    .pj-kpi .v { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+    .pj-kpi .foot { font-size: 12px; color: var(--text-muted); margin-top: 10px; }
+
+    /* Toolbar */
+    .toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .toolbar .search {
+      position: relative; flex: 1; max-width: 360px;
+    }
+    .toolbar .search svg {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    .toolbar .right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    .view-toggle { display: flex; gap: 2px; }
+    .view-toggle button {
+      width: 34px; height: 34px;
+      border: 1px solid var(--border); background: var(--surface); border-radius: 7px;
+      color: var(--text-muted);
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .view-toggle button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    /* Grid view */
+    .pj-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 20px;
+    }
+    .pj-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: box-shadow .15s, transform .15s;
+    }
+    .pj-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+    .pj-card-top {
+      padding: 18px 18px 14px;
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .pj-av {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 16px;
+      flex-shrink: 0;
+    }
+    .pj-av.perhatian { background: linear-gradient(135deg, #D97706, #B45309); }
+    .pj-av.kritis    { background: linear-gradient(135deg, #DC2626, #991B1B); }
+
+    .pj-info { flex: 1; min-width: 0; }
+    .pj-name { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+    .pj-kec  { font-size: 12px; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+    .pj-tel  { font-size: 12px; color: var(--text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+
+    .pj-card-stats {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      border-top: 1px solid var(--border);
+    }
+    .pj-stat {
+      padding: 12px 14px; text-align: center;
+    }
+    .pj-stat + .pj-stat { border-left: 1px solid var(--border); }
+    .pj-stat .v { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+    .pj-stat .l { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; font-weight: 600; }
+
+    .pj-card-foot {
+      padding: 10px 18px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pj-card-foot .updated { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+    .pj-card-actions { display: flex; gap: 4px; }
+    .pj-card-actions button {
+      height: 28px; padding: 0 10px;
+      border: 1px solid var(--border); background: var(--surface); border-radius: 6px;
+      font-size: 11.5px; font-weight: 600; color: var(--text-secondary);
+      display: inline-flex; align-items: center; gap: 5px;
+      transition: all .15s;
+    }
+    .pj-card-actions button:hover { background: var(--primary-50); border-color: var(--primary-200); color: var(--primary-dark); }
+    .pj-card-actions .danger:hover { background: #FEE2E2; border-color: #FCA5A5; color: var(--kritis); }
+
+    /* Table view */
+    .table-wrap { display: none; }
+    .table-wrap.active { display: block; }
+    .grid-wrap { display: block; }
+    .grid-wrap.hidden { display: none; }
+
+    .action-cell { display: flex; gap: 4px; justify-content: flex-end; }
+    .action-cell button {
+      width: 30px; height: 30px;
+      border: 1px solid var(--border); background: var(--surface); border-radius: 6px;
+      color: var(--text-secondary);
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .action-cell button:hover { background: var(--primary-50); border-color: var(--primary-200); color: var(--primary-dark); }
+    .action-cell .danger:hover { background: #FEE2E2; border-color: #FCA5A5; color: var(--kritis); }
+
+    .table-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 12.5px; color: var(--text-secondary);
+    }
+    .pages { display: flex; gap: 4px; }
+    .pages button {
+      min-width: 30px; height: 30px;
+      border: 1px solid var(--border); background: var(--surface); border-radius: 6px;
+      font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    }
+    .pages button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .pages button:hover:not(.active) { background: var(--surface-2); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,23,42,.45);
+      backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100; padding: 24px;
+      animation: fadeIn .15s ease;
+    }
+    .modal-overlay.open { display: flex; }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes slideUp { from { transform:translateY(12px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      width: 100%; max-width: 600px; max-height: 90vh;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp .2s ease;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .modal-h {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-h h3 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+    .modal-h .sub { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+    .modal-h .close {
+      width: 32px; height: 32px;
+      border: 0; background: var(--surface-2); border-radius: 8px; color: var(--text-secondary);
+    }
+    .modal-body { padding: 22px 24px; overflow-y: auto; flex: 1; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modal-grid .full { grid-column: 1 / -1; }
+    .modal .helper { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .modal-foot {
+      padding: 14px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--surface-2);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-foot .meta { font-size: 11.5px; color: var(--text-muted); }
+
+    /* Detail drawer (right panel) */
+    .detail-panel {
+      position: fixed; inset: 0;
+      z-index: 90;
+    }
+    .detail-panel.hidden { display: none; }
+    .detail-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(15,23,42,.3);
+      backdrop-filter: blur(2px);
+    }
+    .detail-drawer {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 420px;
+      background: var(--surface);
+      box-shadow: var(--shadow-lg);
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      animation: slideIn .2s ease;
+    }
+    @keyframes slideIn { from { transform: translateX(40px); opacity:0; } to { transform: translateX(0); opacity:1; } }
+    .drawer-h {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .drawer-h .close-drawer {
+      margin-left: auto;
+      width: 32px; height: 32px;
+      border: 0; background: var(--surface-2); border-radius: 8px; color: var(--text-secondary);
+    }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
+    .drawer-section { margin-bottom: 20px; }
+    .drawer-section h4 {
+      font-size: 11.5px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: 0 0 12px;
+    }
+    .info-row {
+      display: grid; grid-template-columns: 120px 1fr;
+      gap: 6px; padding: 8px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 13px;
+    }
+    .info-row:last-child { border: 0; }
+    .info-row .lbl { color: var(--text-muted); font-weight: 500; }
+    .info-row .val { font-weight: 600; }
+
+    .history-item {
+      display: grid; grid-template-columns: 28px 1fr auto;
+      gap: 10px; padding: 10px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 12.5px;
+    }
+    .history-item:last-child { border: 0; }
+    .h-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .drawer-foot {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="app">
+    <div class="main">
+
+      <div class="page-header">
+        <div>
+          <h1>PJ Wilayah</h1>
+          <p>Daftar penanggung jawab stok bahan baku di 23 kecamatan Kabupaten Bondowoso</p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-outline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Ekspor Daftar
+          </button>
+          <button class="btn btn-primary" id="openModal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah PJ Baru
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="pj-kpis">
+        <div class="pj-kpi">
+          <div class="top">
+            <span class="lbl">Total PJ Terdaftar</span>
+            <span class="ic blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+          </div>
+          <div class="v">23</div>
+          <div class="foot">1 PJ per kecamatan · Aktif semua</div>
+        </div>
+        <div class="pj-kpi">
+          <div class="top">
+            <span class="lbl">Wilayah Aman</span>
+            <span class="ic green">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </div>
+          <div class="v" style="color: var(--aman);">15</div>
+          <div class="foot">Semua item stok ≥ 80% target</div>
+        </div>
+        <div class="pj-kpi">
+          <div class="top">
+            <span class="lbl">Wilayah Perlu Perhatian</span>
+            <span class="ic yellow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </span>
+          </div>
+          <div class="v" style="color: var(--perhatian);">5</div>
+          <div class="foot">Stok 40–80% · Perlu tindakan</div>
+        </div>
+        <div class="pj-kpi">
+          <div class="top">
+            <span class="lbl">Wilayah Kritis</span>
+            <span class="ic red">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+          </div>
+          <div class="v" style="color: var(--kritis);">3</div>
+          <div class="foot">Butuh tindakan dalam 48 jam</div>
+        </div>
+      </div>
+
+      <!-- Table + Grid -->
+      <div class="card" style="padding: 0;">
+        <div class="toolbar">
+          <div class="search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="input with-icon" placeholder="Cari nama PJ atau kecamatan..." id="searchInput" />
+          </div>
+          <div class="right">
+            <select class="input" style="width:auto; padding: 8px 12px; font-size:13px;" id="statusFilter">
+              <option value="all">Semua Status</option>
+              <option value="aman">Aman</option>
+              <option value="perhatian">Perlu Perhatian</option>
+              <option value="kritis">Kritis</option>
+            </select>
+            <div class="view-toggle">
+              <button id="btnGrid" class="active" title="Tampilan Kartu">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              </button>
+              <button id="btnTable" title="Tampilan Tabel">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid view -->
+        <div class="grid-wrap" id="gridWrap">
+          <div class="pj-grid" id="pjGrid"></div>
+        </div>
+
+        <!-- Table view -->
+        <div class="table-wrap" id="tableWrap">
+          <div class="scroll-x">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th style="width:28px;"><input type="checkbox" style="accent-color:var(--primary);" /></th>
+                  <th>Nama PJ</th>
+                  <th>Kecamatan</th>
+                  <th>No. Kontak</th>
+                  <th>Jenis Bahan Dikelola</th>
+                  <th>Item Kritis</th>
+                  <th>Status Wilayah</th>
+                  <th>Pembaruan Terakhir</th>
+                  <th style="text-align:right;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-foot">
+            <span id="tableFootInfo">Menampilkan 23 PJ Wilayah</span>
+            <div class="pages">
+              <button>‹</button>
+              <button class="active">1</button>
+              <button>2</button>
+              <button>›</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Detail Drawer -->
+  <div class="detail-panel hidden" id="detailPanel">
+    <div class="detail-backdrop" id="detailBackdrop"></div>
+    <div class="detail-drawer">
+      <div class="drawer-h">
+        <div class="pj-av" id="drawerAv">HB</div>
+        <div>
+          <div style="font-size:16px; font-weight:800;" id="drawerName">Hasan Basri</div>
+          <div style="font-size:12px; color:var(--text-muted);" id="drawerKec">Kec. Bondowoso</div>
+        </div>
+        <button class="close-drawer" id="closeDrawer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+      <div class="drawer-foot">
+        <button class="btn btn-outline" style="flex:1; justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Hubungi PJ
+        </button>
+        <button class="btn btn-primary" style="flex:1; justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit Data PJ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Tambah PJ -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-h">
+        <div>
+          <h3>Tambah PJ Wilayah Baru</h3>
+          <div class="sub">Daftarkan penanggung jawab untuk kecamatan</div>
+        </div>
+        <button class="close" id="closeModal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="field full">
+            <label>Nama Lengkap <span style="color:var(--kritis);">*</span></label>
+            <input class="input" placeholder="Contoh: Bambang Sutrisno" />
+          </div>
+
+          <div class="field">
+            <label>NIP / NIK <span style="color:var(--kritis);">*</span></label>
+            <input class="input" placeholder="19XXXXXXXXXXXX" />
+          </div>
+
+          <div class="field">
+            <label>Jabatan</label>
+            <select class="input">
+              <option>Koordinator Kecamatan</option>
+              <option>Staf Ketahanan Pangan</option>
+              <option>Petugas Lapangan</option>
+              <option>Kepala Desa / Kelurahan</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>No. Telepon / WhatsApp <span style="color:var(--kritis);">*</span></label>
+            <input class="input" placeholder="081234567890" />
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input class="input" type="email" placeholder="nama@bondowosokab.go.id" />
+          </div>
+
+          <div class="field full">
+            <label>Kecamatan yang Ditangani <span style="color:var(--kritis);">*</span></label>
+            <select class="input">
+              <option>Pilih kecamatan...</option>
+              <option>Bondowoso</option>
+              <option>Tenggarang</option>
+              <option>Tegalampel</option>
+              <option>Wonosari</option>
+              <option>Curahdami</option>
+              <option>Maesan</option>
+              <option>Grujugan</option>
+              <option>Pujer</option>
+              <option>Tamanan</option>
+              <option>Jambesari</option>
+              <option>Tapen</option>
+              <option>Wringin</option>
+              <option>Pakem</option>
+              <option>Binakal</option>
+              <option>Sukosari</option>
+              <option>Tlogosari</option>
+              <option>Sumber Wringin</option>
+              <option>Klabang</option>
+              <option>Botolinggo</option>
+              <option>Prajekan</option>
+              <option>Cermee</option>
+              <option>Taman Krocok</option>
+              <option>Ijen</option>
+            </select>
+          </div>
+
+          <hr class="divider full" />
+
+          <div class="field full">
+            <label>Alamat Kantor / Domisili</label>
+            <textarea class="input" rows="2" placeholder="Jl. ..."></textarea>
+          </div>
+
+          <div class="field full">
+            <label>Catatan</label>
+            <textarea class="input" rows="2" placeholder="Informasi tambahan tentang PJ ini..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <span class="meta">Field <span style="color:var(--kritis);">*</span> wajib diisi</span>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" id="cancelModal">Batal</button>
+          <button class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Simpan PJ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/shell.js"></script>
+  <script>
+    renderShell({ active: 'pj', page: 'PJ Wilayah', crumb: 'Manajemen · Penanggung Jawab' });
+
+    // ===== Data =====
+    const PJ_DATA = [
+      { name: 'Hasan Basri',      kec: 'Bondowoso',      tel: '081234-001-010', status: 'aman',      bahan: 12, kritis: 0, updated: '5 mnt lalu',   jabatan: 'Koordinator Kecamatan' },
+      { name: 'Hasan Wijaya',     kec: 'Tenggarang',     tel: '081234-001-015', status: 'aman',      bahan: 11, kritis: 0, updated: '18 mnt lalu',  jabatan: 'Koordinator Kecamatan' },
+      { name: 'Linda Wijaya',     kec: 'Tegalampel',     tel: '081234-001-009', status: 'aman',      bahan: 10, kritis: 0, updated: '32 mnt lalu',  jabatan: 'Staf Ketahanan Pangan' },
+      { name: 'Rina Susanti',     kec: 'Wonosari',       tel: '081234-001-011', status: 'aman',      bahan: 9,  kritis: 0, updated: '1 jam lalu',   jabatan: 'Koordinator Kecamatan' },
+      { name: 'Dewi Lestari',     kec: 'Curahdami',      tel: '081234-001-014', status: 'aman',      bahan: 10, kritis: 0, updated: '45 mnt lalu',  jabatan: 'Petugas Lapangan' },
+      { name: 'Sigit Pratomo',    kec: 'Maesan',         tel: '081234-001-022', status: 'perhatian', bahan: 10, kritis: 1, updated: '2 jam lalu',   jabatan: 'Staf Ketahanan Pangan' },
+      { name: 'Sri Mulyani',      kec: 'Grujugan',       tel: '081234-001-019', status: 'aman',      bahan: 9,  kritis: 0, updated: '3 jam lalu',   jabatan: 'Koordinator Kecamatan' },
+      { name: 'Wahyu Pratama',    kec: 'Pujer',          tel: '081234-001-020', status: 'aman',      bahan: 10, kritis: 0, updated: '4 jam lalu',   jabatan: 'Koordinator Kecamatan' },
+      { name: 'Lestari Putri',    kec: 'Tamanan',        tel: '081234-001-023', status: 'aman',      bahan: 9,  kritis: 0, updated: '5 jam lalu',   jabatan: 'Petugas Lapangan' },
+      { name: 'Nurul Hidayah',    kec: 'Jambesari',      tel: '081234-001-021', status: 'perhatian', bahan: 8,  kritis: 1, updated: '6 jam lalu',   jabatan: 'Staf Ketahanan Pangan' },
+      { name: 'Susi Astuti',      kec: 'Tapen',          tel: '081234-001-006', status: 'aman',      bahan: 9,  kritis: 0, updated: '7 jam lalu',   jabatan: 'Koordinator Kecamatan' },
+      { name: 'Sutrisno Aji',     kec: 'Wringin',        tel: '081234-001-008', status: 'kritis',    bahan: 11, kritis: 3, updated: '12 mnt lalu',  jabatan: 'Koordinator Kecamatan' },
+      { name: 'Yusuf Mansyur',    kec: 'Pakem',          tel: '081234-001-018', status: 'perhatian', bahan: 9,  kritis: 1, updated: '2 jam lalu',   jabatan: 'Petugas Lapangan' },
+      { name: 'Indra Kusuma',     kec: 'Binakal',        tel: '081234-001-013', status: 'aman',      bahan: 10, kritis: 0, updated: '8 jam lalu',   jabatan: 'Koordinator Kecamatan' },
+      { name: 'Hartono Putra',    kec: 'Sukosari',       tel: '081234-001-007', status: 'perhatian', bahan: 9,  kritis: 1, updated: '3 jam lalu',   jabatan: 'Staf Ketahanan Pangan' },
+      { name: 'Bambang Riyadi',   kec: 'Tlogosari',      tel: '081234-001-016', status: 'perhatian', bahan: 10, kritis: 2, updated: '1 jam lalu',   jabatan: 'Koordinator Kecamatan' },
+      { name: 'Agus Salim',       kec: 'Sumber Wringin', tel: '081234-001-012', status: 'kritis',    bahan: 8,  kritis: 3, updated: '8 mnt lalu',   jabatan: 'Koordinator Kecamatan' },
+      { name: 'Bambang Sutrisno', kec: 'Klabang',        tel: '081234-001-001', status: 'aman',      bahan: 10, kritis: 0, updated: '9 jam lalu',   jabatan: 'Petugas Lapangan' },
+      { name: 'Maryam Hidayat',   kec: 'Botolinggo',     tel: '081234-001-002', status: 'aman',      bahan: 9,  kritis: 0, updated: '10 jam lalu',  jabatan: 'Koordinator Kecamatan' },
+      { name: 'Joko Widodo',      kec: 'Prajekan',       tel: '081234-001-003', status: 'aman',      bahan: 10, kritis: 0, updated: '11 jam lalu',  jabatan: 'Staf Ketahanan Pangan' },
+      { name: 'Surya Atmaja',     kec: 'Cermee',         tel: '081234-001-004', status: 'aman',      bahan: 9,  kritis: 0, updated: '12 jam lalu',  jabatan: 'Koordinator Kecamatan' },
+      { name: 'Eko Prabowo',      kec: 'Taman Krocok',   tel: '081234-001-005', status: 'aman',      bahan: 10, kritis: 0, updated: '13 jam lalu',  jabatan: 'Petugas Lapangan' },
+      { name: 'Anton Hermawan',   kec: 'Ijen',           tel: '081234-001-017', status: 'kritis',    bahan: 9,  kritis: 2, updated: '20 mnt lalu',  jabatan: 'Koordinator Kecamatan' },
+    ];
+
+    const statusLabel = { aman: 'Aman', perhatian: 'Perlu Perhatian', kritis: 'Kritis' };
+
+    function initials(name) {
+      return name.split(' ').map(s => s[0]).slice(0, 2).join('');
+    }
+
+    function getFiltered() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const st = document.getElementById('statusFilter').value;
+      return PJ_DATA.filter(p => {
+        const matchQ = !q || p.name.toLowerCase().includes(q) || p.kec.toLowerCase().includes(q);
+        const matchSt = st === 'all' || p.status === st;
+        return matchQ && matchSt;
+      });
+    }
+
+    // ===== Grid view =====
+    function renderGrid() {
+      const filtered = getFiltered();
+      document.getElementById('pjGrid').innerHTML = filtered.map(p => `
+        <div class="pj-card" onclick="openDrawer('${p.name.replace(/'/g,"\\'")}')">
+          <div class="pj-card-top">
+            <div class="pj-av ${p.status !== 'aman' ? p.status : ''}">${initials(p.name)}</div>
+            <div class="pj-info">
+              <div class="pj-name">${p.name}</div>
+              <div class="pj-kec">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Kec. ${p.kec}
+              </div>
+              <div class="pj-tel">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                ${p.tel}
+              </div>
+            </div>
+            <span class="badge ${p.status}" style="align-self:flex-start;">${statusLabel[p.status]}</span>
+          </div>
+          <div class="pj-card-stats">
+            <div class="pj-stat">
+              <div class="v">${p.bahan}</div>
+              <div class="l">Bahan Dikelola</div>
+            </div>
+            <div class="pj-stat">
+              <div class="v" style="color: ${p.kritis > 0 ? 'var(--kritis)' : 'var(--aman)'};">${p.kritis}</div>
+              <div class="l">Item Kritis</div>
+            </div>
+            <div class="pj-stat">
+              <div class="v" style="font-size:13px;">219</div>
+              <div class="l">Titik Distribusi</div>
+            </div>
+          </div>
+          <div class="pj-card-foot">
+            <span class="updated">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${p.updated}
+            </span>
+            <div class="pj-card-actions">
+              <button onclick="event.stopPropagation();" title="WhatsApp">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Hubungi
+              </button>
+              <button onclick="event.stopPropagation();" title="Edit">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ===== Table view =====
+    function renderTable() {
+      const filtered = getFiltered();
+      document.getElementById('tableFootInfo').textContent = `Menampilkan ${filtered.length} PJ Wilayah`;
+      document.getElementById('tableBody').innerHTML = filtered.map(p => `
+        <tr>
+          <td><input type="checkbox" style="accent-color:var(--primary);" /></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="pj-av ${p.status !== 'aman' ? p.status : ''}" style="width:32px; height:32px; font-size:11px;">${initials(p.name)}</div>
+              <div>
+                <div class="strong">${p.name}</div>
+                <div class="muted">${p.jabatan}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div>${p.kec}</div>
+          </td>
+          <td class="muted">${p.tel}</td>
+          <td>${p.bahan} jenis</td>
+          <td>
+            ${p.kritis > 0
+              ? `<span class="badge kritis">${p.kritis} item kritis</span>`
+              : `<span class="badge aman">Semua aman</span>`}
+          </td>
+          <td><span class="badge ${p.status}">${statusLabel[p.status]}</span></td>
+          <td class="muted" style="font-size:12px;">${p.updated}</td>
+          <td>
+            <div class="action-cell">
+              <button title="Detail" onclick="openDrawer('${p.name.replace(/'/g,"\\'")}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button title="Edit">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button title="Hapus" class="danger">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ===== Detail Drawer =====
+    function openDrawer(name) {
+      const p = PJ_DATA.find(x => x.name === name);
+      if (!p) return;
+      document.getElementById('drawerAv').textContent = initials(p.name);
+      document.getElementById('drawerAv').className = `pj-av ${p.status !== 'aman' ? p.status : ''}`;
+      document.getElementById('drawerName').textContent = p.name;
+      document.getElementById('drawerKec').textContent = 'Kec. ' + p.kec;
+
+      const statusColors = { aman: '#166534', perhatian: '#92400E', kritis: '#991B1B' };
+
+      document.getElementById('drawerBody').innerHTML = `
+        <div class="drawer-section">
+          <h4>Informasi PJ</h4>
+          <div class="info-row"><span class="lbl">Nama Lengkap</span><span class="val">${p.name}</span></div>
+          <div class="info-row"><span class="lbl">Jabatan</span><span class="val">${p.jabatan}</span></div>
+          <div class="info-row"><span class="lbl">Kecamatan</span><span class="val">${p.kec}</span></div>
+          <div class="info-row"><span class="lbl">No. Telepon</span><span class="val">${p.tel}</span></div>
+          <div class="info-row"><span class="lbl">Status Wilayah</span><span class="val"><span class="badge ${p.status}">${statusLabel[p.status]}</span></span></div>
+          <div class="info-row"><span class="lbl">Pembaruan</span><span class="val">${p.updated}</span></div>
+        </div>
+
+        <div class="drawer-section">
+          <h4>Ringkasan Stok</h4>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+            <div class="cs" style="background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;">
+              <div style="font-size:20px; font-weight:800;">${p.bahan}</div>
+              <div style="font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Jenis Bahan</div>
+            </div>
+            <div class="cs" style="background:${p.kritis > 0 ? 'var(--kritis-bg)' : 'var(--aman-bg)'}; border:1px solid ${p.kritis > 0 ? '#FCA5A5' : '#A7F3D0'}; border-radius:8px; padding:10px 12px;">
+              <div style="font-size:20px; font-weight:800; color:${p.kritis > 0 ? 'var(--kritis)' : 'var(--aman)'};">${p.kritis}</div>
+              <div style="font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Item Kritis</div>
+            </div>
+          </div>
+          ${p.kritis > 0 ? `
+            <div style="background:var(--kritis-bg); border:1px solid #FCA5A5; border-radius:8px; padding:10px 12px; font-size:12.5px; color:#991B1B;">
+              <strong>⚠ Perlu tindakan segera</strong> — ${p.kritis} item di bawah 40% target stok.
+              Hubungi PJ untuk koordinasi pengisian stok.
+            </div>
+          ` : `
+            <div style="background:var(--aman-bg); border:1px solid #A7F3D0; border-radius:8px; padding:10px 12px; font-size:12.5px; color:#166534;">
+              ✓ Semua stok wilayah dalam kondisi baik.
+            </div>
+          `}
+        </div>
+
+        <div class="drawer-section">
+          <h4>Aktivitas Terbaru</h4>
+          <div class="history-item">
+            <div class="h-dot" style="background:var(--aman-bg); color:var(--aman);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>Memperbarui stok beras · ${p.kec}</div>
+            <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${p.updated}</span>
+          </div>
+          <div class="history-item">
+            <div class="h-dot" style="background:var(--primary-50); color:var(--primary);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/></svg>
+            </div>
+            <div>Menerima kiriman tempe & tahu</div>
+            <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">2 jam lalu</span>
+          </div>
+          <div class="history-item">
+            <div class="h-dot" style="background:var(--perhatian-bg); color:var(--perhatian);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>Melaporkan estimasi kebutuhan Minggu ini</div>
+            <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">Kemarin</span>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detailPanel').classList.remove('hidden');
+    }
+
+    document.getElementById('closeDrawer').addEventListener('click', () => {
+      document.getElementById('detailPanel').classList.add('hidden');
+    });
+    document.getElementById('detailBackdrop').addEventListener('click', () => {
+      document.getElementById('detailPanel').classList.add('hidden');
+    });
+
+    // View toggle
+    const btnGrid  = document.getElementById('btnGrid');
+    const btnTable = document.getElementById('btnTable');
+    const gridWrap = document.getElementById('gridWrap');
+    const tableWrap= document.getElementById('tableWrap');
+
+    btnGrid.addEventListener('click', () => {
+      btnGrid.classList.add('active'); btnTable.classList.remove('active');
+      gridWrap.classList.remove('hidden'); tableWrap.classList.remove('active');
+    });
+    btnTable.addEventListener('click', () => {
+      btnTable.classList.add('active'); btnGrid.classList.remove('active');
+      tableWrap.classList.add('active'); gridWrap.classList.add('hidden');
+      renderTable();
+    });
+
+    // Filters
+    document.getElementById('searchInput').addEventListener('input', () => { renderGrid(); renderTable(); });
+    document.getElementById('statusFilter').addEventListener('change', () => { renderGrid(); renderTable(); });
+
+    // Modal
+    const modal = document.getElementById('modal');
+    document.getElementById('openModal').addEventListener('click', () => modal.classList.add('open'));
+    document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+    document.getElementById('cancelModal').addEventListener('click', () => modal.classList.remove('open'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+    // Init
+    renderGrid();
+  </script>
+</body>
+</html>
